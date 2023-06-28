@@ -61,8 +61,21 @@ class DrawingRuntime {
    * Triangle cache for all the strokes in the drawing.
    */
   mutable SharedCache<Vector<uint3>> triangles_cache;
+};
 
-  StrokeCache stroke_cache;
+class Drawing : public ::GreasePencilDrawing {
+ public:
+  Drawing();
+  Drawing(const Drawing &other);
+  ~Drawing();
+
+  const bke::CurvesGeometry &strokes() const;
+  bke::CurvesGeometry &strokes_for_write();
+  /**
+   * The triangles for all the fills in the geometry.
+   */
+  Span<uint3> triangles() const;
+  void tag_positions_changed();
 };
 
 class LayerGroup;
@@ -195,6 +208,12 @@ class Layer : public ::GreasePencilLayer {
   LayerGroup &parent_group() const;
 
   /**
+   * \returns the layer as a `TreeNode`.
+   */
+  const TreeNode &as_node() const;
+  TreeNode &as_node();
+
+  /**
    * \returns the frames mapping.
    */
   const Map<int, GreasePencilFrame> &frames() const;
@@ -250,6 +269,10 @@ class LayerGroupRuntime {
    * Caches all the layers in this group in a single pre-ordered vector.
    */
   mutable Vector<Layer *> layer_cache_;
+  /**
+   * Caches all the layer groups in this group in a single pre-ordered vector.
+   */
+  mutable Vector<LayerGroup *> layer_group_cache_;
 };
 
 /**
@@ -263,16 +286,23 @@ class LayerGroup : public ::GreasePencilLayerTreeGroup {
   ~LayerGroup();
 
  public:
-  StringRefNull name() const
-  {
-    return this->base.name;
-  }
+  StringRefNull name() const;
+  void set_name(StringRefNull new_name);
+
+  bool is_visible() const;
+  bool is_locked() const;
 
   /**
    * Adds a group at the end of this group.
    */
   LayerGroup &add_group(LayerGroup *group);
   LayerGroup &add_group(StringRefNull name);
+
+  /**
+   * Adds a layer group after \a link and returns it.
+   */
+  LayerGroup &add_group_after(LayerGroup *group, TreeNode *link);
+  LayerGroup &add_group_after(StringRefNull name, TreeNode *link);
 
   /**
    * Adds a layer at the end of this group and returns it.
@@ -303,12 +333,6 @@ class LayerGroup : public ::GreasePencilLayerTreeGroup {
   int64_t num_nodes_total() const;
 
   /**
-   * Removes a child from the group by index. Does not free the memory.
-   * \note: Assumes the removed child is not the active layer.
-   */
-  void remove_child(int64_t index);
-
-  /**
    * Tries to unlink the layer from the list of nodes in this group.
    * \returns true, if the layer was successfully unlinked.
    */
@@ -327,10 +351,22 @@ class LayerGroup : public ::GreasePencilLayerTreeGroup {
   Span<Layer *> layers_for_write();
 
   /**
+   * Returns a `Span` of pointers to all the `LayerGroups`s in this group.
+   */
+  Span<const LayerGroup *> groups() const;
+  Span<LayerGroup *> groups_for_write();
+
+  /**
    * Returns a pointer to the layer with \a name. If no such layer was found, returns nullptr.
    */
   const Layer *find_layer_by_name(StringRefNull name) const;
   Layer *find_layer_by_name(StringRefNull name);
+
+  /**
+   * Returns a pointer to the group with \a name. If no such group was found, returns nullptr.
+   */
+  const LayerGroup *find_group_by_name(StringRefNull name) const;
+  LayerGroup *find_group_by_name(StringRefNull name);
 
   /**
    * Print the nodes. For debugging purposes.
@@ -342,6 +378,15 @@ class LayerGroup : public ::GreasePencilLayerTreeGroup {
   void tag_nodes_cache_dirty() const;
 };
 
+inline const TreeNode &Layer::as_node() const
+{
+  return *reinterpret_cast<const TreeNode *>(this);
+}
+inline TreeNode &Layer::as_node()
+{
+  return *reinterpret_cast<TreeNode *>(this);
+}
+
 inline StringRefNull Layer::name() const
 {
   return this->base.name;
@@ -350,6 +395,11 @@ inline StringRefNull Layer::name() const
 inline LayerGroup &Layer::parent_group() const
 {
   return this->base.parent->wrap();
+}
+
+inline StringRefNull LayerGroup::name() const
+{
+  return this->base.name;
 }
 
 namespace convert {
@@ -368,13 +418,29 @@ class GreasePencilRuntime {
    * Allocated and freed by the drawing code. See `DRW_grease_pencil_batch_cache_*` functions.
    */
   void *batch_cache = nullptr;
+  bke::greasepencil::StrokeCache stroke_cache;
 
  public:
   GreasePencilRuntime() {}
   ~GreasePencilRuntime() {}
+
+  /**
+   * A buffer for a single stroke while drawing.
+   */
+  Span<bke::greasepencil::StrokePoint> stroke_buffer() const;
+  bool has_stroke_buffer() const;
 };
 
 }  // namespace blender::bke
+
+inline blender::bke::greasepencil::Drawing &GreasePencilDrawing::wrap()
+{
+  return *reinterpret_cast<blender::bke::greasepencil::Drawing *>(this);
+}
+inline const blender::bke::greasepencil::Drawing &GreasePencilDrawing::wrap() const
+{
+  return *reinterpret_cast<const blender::bke::greasepencil::Drawing *>(this);
+}
 
 inline blender::bke::greasepencil::TreeNode &GreasePencilLayerTreeNode::wrap()
 {

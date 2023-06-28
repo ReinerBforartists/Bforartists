@@ -603,8 +603,8 @@ class CYCLES_RENDER_PT_light_paths_caustics(CyclesButtonsPanel, Panel):
         col.prop(cscene, "blur_glossy")
 
         col.use_property_split = False
-        col.prop(cscene, "caustics_reflective")
-        col.prop(cscene, "caustics_refractive")
+        col.prop(cscene, "caustics_reflective", text="Reflective")
+        col.prop(cscene, "caustics_refractive", text="Refractive")
 
 
 class CYCLES_RENDER_PT_light_paths_fast_gi(CyclesButtonsPanel, Panel):
@@ -888,7 +888,7 @@ class CYCLES_RENDER_PT_performance_final_render(CyclesButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-        #layout.use_property_split = True
+        #layout.use_property_split = True #BFA - turned off
         layout.use_property_decorate = False
 
         scene = context.scene
@@ -923,7 +923,7 @@ class CYCLES_RENDER_PT_filter(CyclesButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.use_property_split = False
+        layout.use_property_split = False #BFA - turned off
         layout.use_property_decorate = False
 
         scene = context.scene
@@ -989,7 +989,7 @@ class CYCLES_RENDER_PT_passes_data(CyclesButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.use_property_split = False
+        layout.use_property_split = False #BFA - turned off
         layout.use_property_decorate = False
 
         scene = context.scene
@@ -1084,11 +1084,11 @@ class CYCLES_RENDER_PT_passes_light(CyclesButtonsPanel, Panel):
     bl_label = "Light"
     bl_context = "view_layer"
     bl_parent_id = "CYCLES_RENDER_PT_passes"
-    bl_options = {'DEFAULT_CLOSED'}
+    bl_options = {'DEFAULT_CLOSED'} #BFA - closed
 
     def draw(self, context):
         layout = self.layout
-        layout.use_property_split = False
+        layout.use_property_split = False #BFA - turned off
         layout.use_property_decorate = False
 
         view_layer = context.view_layer
@@ -1161,7 +1161,7 @@ class CYCLES_RENDER_PT_passes_crypto(CyclesButtonsPanel, ViewLayerCryptomattePan
     bl_label = "Cryptomatte"
     bl_context = "view_layer"
     bl_parent_id = "CYCLES_RENDER_PT_passes"
-    bl_options = {'DEFAULT_CLOSED'}
+    bl_options = {'DEFAULT_CLOSED'} #BFA - closed
 
 
 class CYCLES_RENDER_PT_passes_aov(CyclesButtonsPanel, ViewLayerAOVPanel):
@@ -1631,7 +1631,7 @@ class CYCLES_OBJECT_PT_visibility_ray_visibility(CyclesButtonsPanel, Panel):
     bl_label = "Ray Visibility"
     bl_parent_id = "CYCLES_OBJECT_PT_visibility"
     bl_context = "object"
-    bl_options = {'DEFAULT_CLOSED'}
+    bl_options = {'DEFAULT_CLOSED'} #BFA - closed default
 
     @classmethod
     def poll(cls, context):
@@ -1666,7 +1666,7 @@ class CYCLES_OBJECT_PT_visibility_culling(CyclesButtonsPanel, Panel):
     bl_label = "Culling"
     bl_parent_id = "CYCLES_OBJECT_PT_visibility"
     bl_context = "object"
-    bl_options = {'DEFAULT_CLOSED'}
+    bl_options = {'DEFAULT_CLOSED'} #BFA - closed default
 
     @classmethod
     def poll(cls, context):
@@ -1813,6 +1813,8 @@ class CYCLES_LIGHT_PT_nodes(CyclesButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
+
+        #layout.use_property_split = True #BFA - removed
 
         light = context.light
         panel_node_draw(layout, light, 'OUTPUT_LIGHT', 'Surface')

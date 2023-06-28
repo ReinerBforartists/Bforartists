@@ -625,7 +625,6 @@ class LightMapPack(Operator):
         col.prop(self, "PREF_NEW_UVLAYER")
         col.use_property_split = True
 
-        layout.prop(self, "PREF_IMG_PX_SIZE")
         layout.prop(self, "PREF_BOX_DIV")
         layout.prop(self, "PREF_MARGIN_DIV")
 

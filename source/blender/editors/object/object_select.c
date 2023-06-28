@@ -706,7 +706,7 @@ void OBJECT_OT_select_linked(wmOperatorType *ot)
 {
   /* identifiers */
   ot->name = "Select Linked";
-  ot->description = "Select all visible objects that are linked to";
+  ot->description = "Select all visible objects that are linked";
   ot->idname = "OBJECT_OT_select_linked";
 
   /* api callbacks */

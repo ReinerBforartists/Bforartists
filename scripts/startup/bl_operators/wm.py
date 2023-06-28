@@ -115,7 +115,7 @@ rna_relative_prop = BoolProperty(
 rna_space_type_prop = EnumProperty(
     name="Type",
     items=tuple(
-        (e.identifier, e.name, "", e.value)
+        (e.identifier, e.name, "", e. value)
         for e in bpy.types.Space.bl_rna.properties["type"].enum_items
     ),
     default='EMPTY',
@@ -1188,6 +1188,7 @@ class WM_OT_path_open(Operator):
 
 
 def _wm_doc_get_id(doc_id, *, do_url=True, url_prefix="", report=None):
+
     def operator_exists_pair(a, b):
         # Not fast, this is only for docs.
         return b in dir(getattr(bpy.ops, a))
@@ -1212,8 +1213,8 @@ def _wm_doc_get_id(doc_id, *, do_url=True, url_prefix="", report=None):
         if operator_exists_pair(class_name, class_prop):
             if do_url:
                 url = (
-                        "%s/bpy.ops.%s.html#bpy.ops.%s.%s" %
-                        (url_prefix, class_name, class_name, class_prop)
+                    "%s/bpy.ops.%s.html#bpy.ops.%s.%s" %
+                    (url_prefix, class_name, class_name, class_prop)
                 )
             else:
                 rna = "bpy.ops.%s.%s" % (class_name, class_prop)
@@ -1223,8 +1224,8 @@ def _wm_doc_get_id(doc_id, *, do_url=True, url_prefix="", report=None):
             class_name = class_name.lower()
             if do_url:
                 url = (
-                        "%s/bpy.ops.%s.html#bpy.ops.%s.%s" %
-                        (url_prefix, class_name, class_name, class_prop)
+                    "%s/bpy.ops.%s.html#bpy.ops.%s.%s" %
+                    (url_prefix, class_name, class_name, class_prop)
                 )
             else:
                 rna = "bpy.ops.%s.%s" % (class_name, class_prop)
@@ -1253,8 +1254,8 @@ def _wm_doc_get_id(doc_id, *, do_url=True, url_prefix="", report=None):
 
                 if do_url:
                     url = (
-                            "%s/bpy.types.%s.html#bpy.types.%s.%s" %
-                            (url_prefix, class_name, class_name, class_prop)
+                        "%s/bpy.types.%s.html#bpy.types.%s.%s" %
+                        (url_prefix, class_name, class_name, class_prop)
                     )
                 else:
                     rna = "bpy.types.%s.%s" % (class_name, class_prop)
@@ -1640,8 +1641,8 @@ class WM_OT_properties_edit(Operator):
             self.step_float = rna_data["step"]
             self.subtype = rna_data["subtype"]
             self.use_soft_limits = (
-                    self.min_float != self.soft_min_float or
-                    self.max_float != self.soft_max_float
+                self.min_float != self.soft_min_float or
+                self.max_float != self.soft_max_float
             )
             default = self._convert_new_value_array(rna_data["default"], float, 32)
             self.default_float = default if isinstance(default, list) else [default] * 32
@@ -1652,8 +1653,8 @@ class WM_OT_properties_edit(Operator):
             self.soft_max_int = rna_data["soft_max"]
             self.step_int = rna_data["step"]
             self.use_soft_limits = (
-                    self.min_int != self.soft_min_int or
-                    self.max_int != self.soft_max_int
+                self.min_int != self.soft_min_int or
+                self.max_int != self.soft_max_int
             )
             self.default_int = self._convert_new_value_array(rna_data["default"], int, 32)
         elif self.property_type == 'STRING':
@@ -2450,9 +2451,9 @@ class WM_OT_toolbar_prompt(Operator):
         event_value = event.value
 
         if event_type in {
-            'LEFTMOUSE', 'RIGHTMOUSE', 'MIDDLEMOUSE',
-            'WHEELDOWNMOUSE', 'WHEELUPMOUSE', 'WHEELINMOUSE', 'WHEELOUTMOUSE',
-            'ESC',
+                'LEFTMOUSE', 'RIGHTMOUSE', 'MIDDLEMOUSE',
+                'WHEELDOWNMOUSE', 'WHEELUPMOUSE', 'WHEELINMOUSE', 'WHEELOUTMOUSE',
+                'ESC',
         }:
             context.workspace.status_text_set(None)
             return {'CANCELLED', 'PASS_THROUGH'}
@@ -2874,12 +2875,12 @@ class WM_OT_batch_rename(Operator):
             elif ty == 'STRIP':
                 chars = action.strip_chars
                 chars_strip = (
-                                  "%s%s%s"
-                              ) % (
-                                  string.punctuation if 'PUNCT' in chars else "",
-                                  string.digits if 'DIGIT' in chars else "",
-                                  " " if 'SPACE' in chars else "",
-                              )
+                    "%s%s%s"
+                ) % (
+                    string.punctuation if 'PUNCT' in chars else "",
+                    string.digits if 'DIGIT' in chars else "",
+                    " " if 'SPACE' in chars else "",
+                )
                 part = action.strip_part
                 if 'START' in part:
                     name = name.lstrip(chars_strip)
@@ -3271,6 +3272,7 @@ class WM_MT_splash_about(Menu):
     bl_label = "About"
 
     def draw(self, context):
+
         layout = self.layout
         layout.operator_context = 'EXEC_DEFAULT'
 

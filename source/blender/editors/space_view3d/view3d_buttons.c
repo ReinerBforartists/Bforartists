@@ -5,7 +5,7 @@
 /** \file
  * \ingroup spview3d
  */
-
+/*BFA - this file has quite a few layout changes, so try preserve BFA when possible*/
 #include <float.h>
 #include <math.h>
 #include <stdio.h>

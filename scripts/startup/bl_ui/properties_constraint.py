@@ -1083,6 +1083,8 @@ class ConstraintButtonsPanel:
                 col.prop(con, "pole_angle")
             col.prop(con, "iterations")
             col.prop(con, "chain_count")
+            col.prop(con, "use_tail")
+            col.prop(con, "use_stretch")
 
             row = col.row()
             row.use_property_split = False

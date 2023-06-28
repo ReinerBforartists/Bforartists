@@ -6,7 +6,7 @@ string(TIMESTAMP CURRENT_YEAR "%Y")
 
 set(PROJECT_DESCRIPTION  "Bforartists is the free and open source 3D creation suite software.")
 set(PROJECT_COPYRIGHT    "Copyright (C) 2016-${CURRENT_YEAR} Bforartists")
-set(PROJECT_CONTACT      "reiner.prokein@posteo.de")
+set(PROJECT_CONTACT      "reiner.prokein@posteo.de, contact@trinumedia.com")
 set(PROJECT_VENDOR       "Bforartists")
 
 set(MAJOR_VERSION ${BFORARTISTS_VERSION_MAJOR})

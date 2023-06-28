@@ -14,7 +14,10 @@ from bpy.props import (
     PointerProperty,
     StringProperty,
 )
-from bpy.app.translations import pgettext_iface as iface_
+from bpy.app.translations import (
+    contexts as i18n_contexts,
+    pgettext_iface as iface_
+)
 
 from math import pi
 
@@ -830,7 +833,7 @@ class CyclesRenderSettings(bpy.types.PropertyGroup):
     )
     debug_use_hair_bvh: BoolProperty(
         name="Use Curves BVH",
-        description="Use special type BVH optimized for hair (uses more ram but renders faster)\nActivates with device type GPU Compute",
+        description="Use special type BVH optimized for hair and curves (uses more ram but renders faster)\nActivates with device type GPU Compute",
         default=True,
     )
     debug_use_compact_bvh: BoolProperty(
@@ -842,8 +845,7 @@ class CyclesRenderSettings(bpy.types.PropertyGroup):
         name="BVH Time Steps",
         description="Split BVH primitives by this number of time steps to speed up render time in cost of memory\nDeactivates with Use Spatial Splits active",
         default=0,
-        min=0,
-        max=16,
+        min=0, max=16,
     )
 
     bake_type: EnumProperty(
@@ -1108,6 +1110,7 @@ class CyclesMaterialSettings(bpy.types.PropertyGroup):
     emission_sampling: EnumProperty(
         name="Emission Sampling",
         description="Sampling strategy for emissive surfaces",
+        translation_context=i18n_contexts.id_light,
         items=enum_emission_sampling,
         default="AUTO",
     )
@@ -1261,11 +1264,7 @@ class CyclesWorldSettings(bpy.types.PropertyGroup):
         description="Distance between volume shader samples when rendering the volume "
         "(lower values give more accurate and detailed results, but also increased render time)\nDeactivates when Homogenous is on",
         default=1.0,
-        min=0.0000001,
-        max=100000.0,
-        soft_min=0.1,
-        soft_max=100.0,
-        precision=4,
+        min=0.0000001, max=100000.0, soft_min=0.1, soft_max=100.0, precision=4
     )
 
     @classmethod

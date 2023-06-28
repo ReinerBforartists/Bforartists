@@ -1509,7 +1509,7 @@ class CMRestoreDisabledObjectsOperator(Operator):
 
     def execute(self, context):
         for obj in bpy.data.objects:
-            if obj.name in context.view_layer.objects and obj.hide_viewport:
+            if obj.hide_viewport:
                 obj.hide_viewport = False
                 obj.select_set(True)
 

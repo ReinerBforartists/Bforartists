@@ -77,6 +77,10 @@ class IMAGE_MT_view(Menu):
         layout = self.layout
 
         sima = context.space_data
+        uv = sima.uv_editor
+        tool_settings = context.tool_settings
+        paint = tool_settings.image_paint
+
         show_uvedit = sima.show_uvedit
         show_render = sima.show_render
 
@@ -1019,6 +1023,10 @@ class IMAGE_HT_header(Header):
         sub = row.row(align=True)
         sub.active = overlay.show_overlays
         sub.popover(panel="IMAGE_PT_overlay", text="")
+
+        if show_uvedit:
+            mesh = context.edit_object.data
+            layout.prop_search(mesh.uv_layers, "active", mesh, "uv_layers", text="")
 
         if ima:
             if ima.is_stereo_3d:

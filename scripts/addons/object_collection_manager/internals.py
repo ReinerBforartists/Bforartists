@@ -764,7 +764,7 @@ class CMSendReport(Operator):
         if length > max_len:
             max_len = length
 
-        return wm.invoke_popup(self, width=int(30 + (max_len*5.5)))
+        return wm.invoke_popup(self, width=(30 + (max_len*5.5)))
 
     def execute(self, context):
         self.report({'INFO'}, self.message)

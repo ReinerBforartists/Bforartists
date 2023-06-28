@@ -14,7 +14,7 @@
 #include "BLI_math.h"
 #include "BLI_utildefines.h"
 
-#include "BLI_string.h"
+#include "BLI_string.h" /*BFA*/
 #include "BLT_translation.h"
 
 #include "BKE_context.h"

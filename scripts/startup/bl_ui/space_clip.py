@@ -343,6 +343,7 @@ class CLIP_MT_tracking_editor_menus(Menu):
                 layout.menu("CLIP_MT_select")
                 layout.menu("CLIP_MT_clip")
                 layout.menu("CLIP_MT_track")
+                layout.menu("CLIP_MT_reconstruction")
             else:
                 layout.menu("CLIP_MT_clip")
 
@@ -964,6 +965,12 @@ class CLIP_PT_track_settings_extras(CLIP_PT_tracking_panel, Panel):
     bl_label = "Tracking Options Extras"
     bl_parent_id = 'CLIP_PT_track_settings'
     bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        clip = context.space_data.clip
+
+        return clip.tracking.tracks.active
 
     def draw(self, context):
         layout = self.layout
@@ -2151,6 +2158,7 @@ classes = (
     CLIP_MT_view,
     CLIP_MT_view_pie_menus,
     CLIP_MT_clip,
+    #CLIP_MT_proxy, #BFA - not used
     CLIP_MT_reconstruction,
     CLIP_MT_track,
     CLIP_MT_track_transform,

@@ -59,7 +59,9 @@ void FILE_OT_pack_libraries(wmOperatorType *ot)
   /* identifiers */
   ot->name = "Pack Linked Libraries";
   ot->idname = "FILE_OT_pack_libraries";
-  ot->description = "Pack all linked library files in use into the current .blend";
+  ot->description = 
+      "Pack all linked library files in use into the current .blend";
+      "Library references are preserved so the linked datas can be unpacked again";
 
   /* api callbacks */
   ot->exec = pack_libraries_exec;

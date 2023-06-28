@@ -5,7 +5,7 @@
 /** \file
  * \ingroup spclip
  */
-
+/*BFA - this document has most of the prop labels removed from the slider, so try to preserve*/
 #include <stdio.h>
 #include <string.h>
 
@@ -547,7 +547,7 @@ void uiTemplateMarker(uiLayout *layout,
     vcol = uiLayoutColumn(row, true);
     block = uiLayoutGetBlock(vcol);
     UI_block_align_begin(block);
-
+    /*BFA - modified above*/
     uiBut *bt = uiDefButF(block,
                           UI_BTYPE_NUM,
                           B_MARKER_POS,
