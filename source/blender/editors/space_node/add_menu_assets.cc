@@ -89,7 +89,7 @@ static void node_add_catalog_assets_draw(const bContext *C, Menu *menu)
     uiLayout *col = uiLayoutColumn(layout, false);
     PointerRNA asset_ptr = asset::create_asset_rna_ptr(asset);
     uiLayoutSetContextPointer(col, "asset", &asset_ptr);
-    uiItemO(col, IFACE_(asset->get_name().c_str()), ICON_NONE, "NODE_OT_add_group_asset");
+    uiItemO(col, IFACE_(asset->get_name().c_str()), ICON_NODETREE, "NODE_OT_add_group_asset"); /*BFA - added icon*/
   }
 
   asset_system::AssetLibrary *all_library = ED_assetlist_library_get_once_available(
@@ -108,7 +108,7 @@ static void node_add_catalog_assets_draw(const bContext *C, Menu *menu)
     uiLayout *col = uiLayoutColumn(layout, false);
     uiLayoutSetContextPointer(col, "asset_catalog_path", &path_ptr);
     uiItemM(
-        col, "NODE_MT_node_add_catalog_assets", IFACE_(child_item.get_name().c_str()), ICON_NONE);
+        col, "NODE_MT_node_add_catalog_assets", IFACE_(child_item.get_name().c_str()), ICON_NONE); 
   });
 }
 
