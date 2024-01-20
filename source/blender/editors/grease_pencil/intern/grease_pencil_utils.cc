@@ -6,6 +6,7 @@
  * \ingroup edgreasepencil
  */
 
+#include "BKE_attribute.hh"
 #include "BKE_brush.hh"
 #include "BKE_context.hh"
 #include "BKE_grease_pencil.hh"
@@ -262,12 +263,12 @@ Array<MutableDrawingInfo> retrieve_editable_drawings(const Scene &scene,
   Vector<MutableDrawingInfo> editable_drawings;
   Span<const Layer *> layers = grease_pencil.layers();
   for (const int layer_i : layers.index_range()) {
-    const Layer *layer = layers[layer_i];
-    if (!layer->is_editable()) {
+    const Layer &layer = *layers[layer_i];
+    if (!layer.is_editable()) {
       continue;
     }
     const Array<int> frame_numbers = get_frame_numbers_for_layer(
-        *layer, current_frame, use_multi_frame_editing);
+        layer, current_frame, use_multi_frame_editing);
     for (const int frame_number : frame_numbers) {
       if (Drawing *drawing = grease_pencil.get_editable_drawing_at(layer, frame_number)) {
         editable_drawings.append({*drawing, layer_i, frame_number});
@@ -289,12 +290,12 @@ Array<DrawingInfo> retrieve_visible_drawings(const Scene &scene, const GreasePen
   Vector<DrawingInfo> visible_drawings;
   Span<const Layer *> layers = grease_pencil.layers();
   for (const int layer_i : layers.index_range()) {
-    const Layer *layer = layers[layer_i];
-    if (!layer->is_visible()) {
+    const Layer &layer = *layers[layer_i];
+    if (!layer.is_visible()) {
       continue;
     }
     const Array<int> frame_numbers = get_frame_numbers_for_layer(
-        *layer, current_frame, use_multi_frame_editing);
+        layer, current_frame, use_multi_frame_editing);
     for (const int frame_number : frame_numbers) {
       if (const Drawing *drawing = grease_pencil.get_drawing_at(layer, frame_number)) {
         visible_drawings.append({*drawing, layer_i, frame_number});
@@ -353,7 +354,7 @@ IndexMask retrieve_editable_strokes(Object &object,
   const IndexRange curves_range = drawing.strokes().curves_range();
   const bke::AttributeAccessor attributes = curves.attributes();
 
-  const VArray<int> materials = *attributes.lookup<int>("material_index", ATTR_DOMAIN_CURVE);
+  const VArray<int> materials = *attributes.lookup<int>("material_index", bke::AttrDomain::Curve);
   if (!materials) {
     /* If the attribute does not exist then the default is the first material. */
     if (editable_material_indices.contains(0)) {
@@ -384,7 +385,7 @@ IndexMask retrieve_editable_points(Object &object,
   const bke::AttributeAccessor attributes = curves.attributes();
 
   /* Propagate the material index to the points. */
-  const VArray<int> materials = *attributes.lookup<int>("material_index", ATTR_DOMAIN_POINT);
+  const VArray<int> materials = *attributes.lookup<int>("material_index", bke::AttrDomain::Point);
   if (!materials) {
     /* If the attribute does not exist then the default is the first material. */
     if (editable_material_indices.contains(0)) {
@@ -402,13 +403,13 @@ IndexMask retrieve_editable_points(Object &object,
 
 IndexMask retrieve_editable_elements(Object &object,
                                      const bke::greasepencil::Drawing &drawing,
-                                     const eAttrDomain selection_domain,
+                                     const bke::AttrDomain selection_domain,
                                      IndexMaskMemory &memory)
 {
-  if (selection_domain == ATTR_DOMAIN_CURVE) {
+  if (selection_domain == bke::AttrDomain::Curve) {
     return ed::greasepencil::retrieve_editable_strokes(object, drawing, memory);
   }
-  else if (selection_domain == ATTR_DOMAIN_POINT) {
+  else if (selection_domain == bke::AttrDomain::Point) {
     return ed::greasepencil::retrieve_editable_points(object, drawing, memory);
   }
   return {};
@@ -433,7 +434,7 @@ IndexMask retrieve_visible_strokes(Object &object,
 
   /* Get all the strokes that have their material visible. */
   const VArray<int> materials = *attributes.lookup_or_default<int>(
-      "material_index", ATTR_DOMAIN_CURVE, -1);
+      "material_index", bke::AttrDomain::Curve, -1);
   return IndexMask::from_predicate(
       curves_range, GrainSize(4096), memory, [&](const int64_t curve_i) {
         const int material_index = materials[curve_i];
@@ -483,13 +484,13 @@ IndexMask retrieve_editable_and_selected_points(Object &object,
 
 IndexMask retrieve_editable_and_selected_elements(Object &object,
                                                   const bke::greasepencil::Drawing &drawing,
-                                                  const eAttrDomain selection_domain,
+                                                  const bke::AttrDomain selection_domain,
                                                   IndexMaskMemory &memory)
 {
-  if (selection_domain == ATTR_DOMAIN_CURVE) {
+  if (selection_domain == bke::AttrDomain::Curve) {
     return ed::greasepencil::retrieve_editable_and_selected_strokes(object, drawing, memory);
   }
-  else if (selection_domain == ATTR_DOMAIN_POINT) {
+  else if (selection_domain == bke::AttrDomain::Point) {
     return ed::greasepencil::retrieve_editable_and_selected_points(object, drawing, memory);
   }
   return {};

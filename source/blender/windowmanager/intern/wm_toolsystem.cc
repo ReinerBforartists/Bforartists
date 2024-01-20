@@ -39,7 +39,7 @@
 
 #include "WM_api.hh"
 #include "WM_message.hh"
-#include "WM_toolsystem.h" /* own include */
+#include "WM_toolsystem.hh" /* own include */
 #include "WM_types.hh"
 
 static void toolsystem_reinit_with_toolref(bContext *C, WorkSpace * /*workspace*/, bToolRef *tref);
@@ -205,7 +205,6 @@ static void toolsystem_ref_link(bContext *C, WorkSpace *workspace, bToolRef *tre
                   BKE_brush_sculpt_reset(brush);
                 }
               }
-              BKE_paint_brush_set(paint, brush);
             }
             BKE_paint_brush_set(paint, brush);
           }

@@ -61,7 +61,7 @@ Array<std::unique_ptr<BakeItem>> move_socket_values_to_bake_items(const Span<voi
         auto &value_variant = *static_cast<SocketValueVariant *>(socket_value);
         if (value_variant.is_context_dependent_field()) {
           const fn::GField &field = value_variant.get<fn::GField>();
-          const eAttrDomain domain = config.domains[i];
+          const AttrDomain domain = config.domains[i];
           const std::string attribute_name = ".bake_" + std::to_string(i);
           const Span<int> geometry_indices = config.geometries_by_attribute[i];
           for (const int geometry_i : geometry_indices) {
@@ -193,7 +193,8 @@ static void rename_attributes(const Span<GeometrySet *> geometries,
       GeometryComponent &component = geometry->get_component_for_write(type);
       MutableAttributeAccessor attributes = *component.attributes_for_write();
       for (const MapItem<std::string, AnonymousAttributeIDPtr> &attribute_item :
-           attribute_map.items()) {
+           attribute_map.items())
+      {
         attributes.rename(attribute_item.key, *attribute_item.value);
       }
     }

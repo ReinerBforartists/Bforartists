@@ -12,6 +12,7 @@
 #include "DNA_brush_types.h"
 #include "DNA_curve_types.h"
 #include "DNA_scene_types.h"
+#include "DNA_sequence_types.h"
 #include "DNA_space_types.h"
 #include "DNA_userdef_types.h"
 #include "DNA_view3d_types.h"
@@ -329,10 +330,10 @@ static void rna_userdef_language_update(Main * /*bmain*/, Scene * /*scene*/, Poi
 
   const char *uilng = BLT_lang_get();
   if (STREQ(uilng, "en_US")) {
-    U.transopts &= ~(USER_TR_IFACE | USER_TR_TOOLTIPS | USER_TR_NEWDATANAME);
+    U.transopts &= ~(USER_TR_IFACE | USER_TR_TOOLTIPS | USER_TR_REPORTS | USER_TR_NEWDATANAME);
   }
   else {
-    U.transopts |= (USER_TR_IFACE | USER_TR_TOOLTIPS | USER_TR_NEWDATANAME);
+    U.transopts |= (USER_TR_IFACE | USER_TR_TOOLTIPS | USER_TR_REPORTS | USER_TR_NEWDATANAME);
   }
 
   USERDEF_TAG_DIRTY;
@@ -371,6 +372,15 @@ static void rna_userdef_extension_repo_directory_set(PointerRNA *ptr, const char
   bUserExtensionRepo *repo = (bUserExtensionRepo *)ptr->data;
   BKE_callback_exec_null(bmain, BKE_CB_EVT_EXTENSION_REPOS_UPDATE_PRE);
   BKE_preferences_extension_repo_path_set(repo, value);
+  BKE_callback_exec_null(bmain, BKE_CB_EVT_EXTENSION_REPOS_UPDATE_POST);
+}
+
+static void rna_userdef_extension_repo_enabled_set(PointerRNA *ptr, bool value)
+{
+  Main *bmain = G.main;
+  bUserExtensionRepo *repo = (bUserExtensionRepo *)ptr->data;
+  BKE_callback_exec_null(bmain, BKE_CB_EVT_EXTENSION_REPOS_UPDATE_PRE);
+  SET_FLAG_FROM_TEST(repo->flag, !value, USER_EXTENSION_REPO_FLAG_DISABLED);
   BKE_callback_exec_null(bmain, BKE_CB_EVT_EXTENSION_REPOS_UPDATE_POST);
 }
 
@@ -432,6 +442,40 @@ static void rna_userdef_script_directory_remove(ReportList *reports, PointerRNA 
   }
 
   BLI_freelinkN(&U.script_directories, script_dir);
+  RNA_POINTER_INVALIDATE(ptr);
+  USERDEF_TAG_DIRTY;
+}
+
+static bUserAssetLibrary *rna_userdef_asset_library_new(const char *name, const char *directory)
+{
+  bUserAssetLibrary *new_library = BKE_preferences_asset_library_add(
+      &U, name ? name : "", directory ? directory : "");
+
+  /* Trigger refresh for the Asset Browser. */
+  WM_main_add_notifier(NC_SPACE | ND_SPACE_ASSET_PARAMS, nullptr);
+
+  USERDEF_TAG_DIRTY;
+  return new_library;
+}
+
+static void rna_userdef_asset_library_remove(ReportList *reports, PointerRNA *ptr)
+{
+  bUserAssetLibrary *library = static_cast<bUserAssetLibrary *>(ptr->data);
+
+  if (BLI_findindex(&U.asset_libraries, library) == -1) {
+    BKE_report(reports, RPT_ERROR, "Asset Library not found");
+    return;
+  }
+
+  BKE_preferences_asset_library_remove(&U, library);
+
+  /* Update active library index to be in range. */
+  const int count_remaining = BLI_listbase_count(&U.asset_libraries);
+  CLAMP(U.active_asset_library, 0, count_remaining - 1);
+
+  /* Trigger refresh for the Asset Browser. */
+  WM_main_add_notifier(NC_SPACE | ND_SPACE_ASSET_PARAMS, nullptr);
+
   RNA_POINTER_INVALIDATE(ptr);
   USERDEF_TAG_DIRTY;
 }
@@ -688,7 +732,8 @@ static void rna_UserDef_subdivision_update(Main *bmain, Scene *scene, PointerRNA
   Object *ob;
 
   for (ob = static_cast<Object *>(bmain->objects.first); ob;
-       ob = static_cast<Object *>(ob->id.next)) {
+       ob = static_cast<Object *>(ob->id.next))
+  {
     if (BKE_object_get_last_subsurf_modifier(ob) != nullptr) {
       DEG_id_tag_update(&ob->id, ID_RECALC_GEOMETRY);
     }
@@ -727,7 +772,8 @@ static void rna_UserDef_weight_color_update(Main *bmain, Scene *scene, PointerRN
   Object *ob;
 
   for (ob = static_cast<Object *>(bmain->objects.first); ob;
-       ob = static_cast<Object *>(ob->id.next)) {
+       ob = static_cast<Object *>(ob->id.next))
+  {
     if (ob->mode & OB_MODE_WEIGHT_PAINT) {
       DEG_id_tag_update(&ob->id, ID_RECALC_GEOMETRY);
     }
@@ -5191,6 +5237,12 @@ static void rna_def_userdef_view(BlenderRNA *brna)
       "(note that this might make it hard to follow tutorials or the manual)");
   RNA_def_property_update(prop, 0, "rna_userdef_update");
 
+  prop = RNA_def_property(srna, "use_translate_reports", PROP_BOOLEAN, PROP_NONE);
+  RNA_def_property_boolean_sdna(prop, nullptr, "transopts", USER_TR_REPORTS);
+  RNA_def_property_ui_text(
+      prop, "Translate Reports", "Translate additional information, such as error messages");
+  RNA_def_property_update(prop, 0, "rna_userdef_update");
+
   prop = RNA_def_property(srna, "use_translate_new_dataname", PROP_BOOLEAN, PROP_NONE);
   RNA_def_property_boolean_sdna(prop, nullptr, "transopts", USER_TR_NEWDATANAME);
   RNA_def_property_ui_text(
@@ -6550,12 +6602,17 @@ static void rna_def_userdef_filepaths_extension_repo(BlenderRNA *brna)
   /* NOTE(@ideasman42): this is intended to be used by a package manger component
    * which is not yet integrated. */
   prop = RNA_def_property(srna, "use_cache", PROP_BOOLEAN, PROP_NONE);
-  RNA_def_property_boolean_negative_sdna(prop, nullptr, "flag", USER_EXTENSION_FLAG_NO_CACHE);
+  RNA_def_property_boolean_negative_sdna(prop, nullptr, "flag", USER_EXTENSION_REPO_FLAG_NO_CACHE);
   RNA_def_property_ui_text(
       prop,
       "Local Cache",
       "Store packages in local cache, "
       "otherwise downloaded package files are immediately deleted after installation");
+
+  prop = RNA_def_property(srna, "enabled", PROP_BOOLEAN, PROP_NONE);
+  RNA_def_property_boolean_negative_sdna(prop, nullptr, "flag", USER_EXTENSION_REPO_FLAG_DISABLED);
+  RNA_def_property_ui_text(prop, "Enabled", "Enable the repository");
+  RNA_def_property_boolean_funcs(prop, nullptr, "rna_userdef_extension_repo_enabled_set");
 }
 
 static void rna_def_userdef_script_directory(BlenderRNA *brna)
@@ -6620,6 +6677,34 @@ static void rna_def_userdef_script_directory_collection(BlenderRNA *brna, Proper
   RNA_def_function_flag(func, FUNC_NO_SELF | FUNC_USE_REPORTS);
   RNA_def_function_ui_description(func, "Remove a Python script directory");
   parm = RNA_def_pointer(func, "script_directory", "ScriptDirectory", "", "");
+  RNA_def_parameter_flags(parm, PROP_NEVER_NULL, PARM_REQUIRED | PARM_RNAPTR);
+  RNA_def_parameter_clear_flags(parm, PROP_THICK_WRAP, ParameterFlag(0));
+}
+
+static void rna_def_userdef_asset_library_collection(BlenderRNA *brna, PropertyRNA *cprop)
+{
+  StructRNA *srna;
+  FunctionRNA *func;
+  PropertyRNA *parm;
+
+  RNA_def_property_srna(cprop, "AssetLibraryCollection");
+  srna = RNA_def_struct(brna, "AssetLibraryCollection", nullptr);
+  RNA_def_struct_clear_flag(srna, STRUCT_UNDO);
+  RNA_def_struct_ui_text(srna, "User Asset Libraries", "Collection of user asset libraries");
+
+  func = RNA_def_function(srna, "new", "rna_userdef_asset_library_new");
+  RNA_def_function_flag(func, FUNC_NO_SELF);
+  RNA_def_function_ui_description(func, "Add a new Asset Library");
+  RNA_def_string(func, "name", nullptr, sizeof(bUserAssetLibrary::name), "Name", "");
+  RNA_def_string(func, "directory", nullptr, sizeof(bUserAssetLibrary::dirpath), "Directory", "");
+  /* return type */
+  parm = RNA_def_pointer(func, "library", "UserAssetLibrary", "", "Newly added asset library");
+  RNA_def_function_return(func, parm);
+
+  func = RNA_def_function(srna, "remove", "rna_userdef_asset_library_remove");
+  RNA_def_function_flag(func, FUNC_NO_SELF | FUNC_USE_REPORTS);
+  RNA_def_function_ui_description(func, "Remove an Asset Library");
+  parm = RNA_def_pointer(func, "library", "UserAssetLibrary", "", "");
   RNA_def_parameter_flags(parm, PROP_NEVER_NULL, PARM_REQUIRED | PARM_RNAPTR);
   RNA_def_parameter_clear_flags(parm, PROP_THICK_WRAP, ParameterFlag(0));
 }
@@ -6864,6 +6949,7 @@ static void rna_def_userdef_filepaths(BlenderRNA *brna)
   prop = RNA_def_property(srna, "asset_libraries", PROP_COLLECTION, PROP_NONE);
   RNA_def_property_struct_type(prop, "UserAssetLibrary");
   RNA_def_property_ui_text(prop, "Asset Libraries", "");
+  rna_def_userdef_asset_library_collection(brna, prop);
 
   prop = RNA_def_property(srna, "active_asset_library", PROP_INT, PROP_NONE);
   RNA_def_property_ui_text(prop,
@@ -6935,12 +7021,11 @@ static void rna_def_userdef_experimental(BlenderRNA *brna)
       "Use legacy undo (slower than the new default one, but may be more stable in some cases)");
 
   prop = RNA_def_property(srna, "override_auto_resync", PROP_BOOLEAN, PROP_NONE);
-  RNA_def_property_boolean_negative_sdna(prop, nullptr, "no_override_auto_resync", 1);
-  RNA_def_property_ui_text(
-      prop,
-      "Override Auto Resync",
-      "Enable library overrides automatic resync detection and process on file load. Disable when "
-      "dealing with older .blend files that need manual Resync (Enforce) handling");
+  RNA_def_property_boolean_sdna(prop, nullptr, "no_override_auto_resync", 1);
+  RNA_def_property_ui_text(prop,
+                           "No Override Auto Resync",
+                           "Disable library overrides automatic resync detection and process on "
+                           "file load (can be useful to help fixing broken files)");
 
   prop = RNA_def_property(srna, "use_new_point_cloud_type", PROP_BOOLEAN, PROP_NONE);
   RNA_def_property_boolean_sdna(prop, nullptr, "use_new_point_cloud_type", 1);
@@ -6994,17 +7079,12 @@ static void rna_def_userdef_experimental(BlenderRNA *brna)
   RNA_def_property_update(prop, 0, "rna_userdef_ui_update");
 
   prop = RNA_def_property(srna, "use_asset_indexing", PROP_BOOLEAN, PROP_NONE);
-  RNA_def_property_boolean_negative_sdna(prop, nullptr, "no_asset_indexing", 1);
+  RNA_def_property_boolean_sdna(prop, nullptr, "no_asset_indexing", 1);
   RNA_def_property_ui_text(prop,
-                           "Asset Indexing",
-                           "Disabling the asset indexer forces every asset library refresh to "
+                           "No Asset Indexing",
+                           "Disable the asset indexer, to force every asset library refresh to "
                            "completely reread assets from disk");
   RNA_def_property_update(prop, 0, "rna_userdef_ui_update");
-
-  prop = RNA_def_property(srna, "use_override_templates", PROP_BOOLEAN, PROP_NONE);
-  RNA_def_property_boolean_sdna(prop, nullptr, "use_override_templates", 1);
-  RNA_def_property_ui_text(
-      prop, "Override Templates", "Enable library override template in the Python API");
 
   prop = RNA_def_property(srna, "use_grease_pencil_version3", PROP_BOOLEAN, PROP_NONE);
   RNA_def_property_boolean_sdna(prop, nullptr, "use_grease_pencil_version3", 1);

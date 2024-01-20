@@ -66,15 +66,15 @@
 
 #include "WM_api.hh"
 #include "WM_message.hh"
-#include "WM_toolsystem.h"
+#include "WM_toolsystem.hh"
 #include "WM_types.hh"
 
 #include "wm.hh"
-#include "wm_event_system.h"
+#include "wm_event_system.hh"
 #include "wm_event_types.hh"
 #include "wm_surface.hh"
 #include "wm_window.hh"
-#include "wm_window_private.h"
+#include "wm_window_private.hh"
 
 #include "DEG_depsgraph.hh"
 #include "DEG_depsgraph_query.hh"
@@ -464,9 +464,35 @@ void wm_event_do_depsgraph(bContext *C, bool is_after_open_file)
   }
   /* Update all the dependency graphs of visible view layers. */
   LISTBASE_FOREACH (wmWindow *, win, &wm->windows) {
+    Main *bmain = CTX_data_main(C);
     Scene *scene = WM_window_get_active_scene(win);
     ViewLayer *view_layer = WM_window_get_active_view_layer(win);
-    Main *bmain = CTX_data_main(C);
+    bScreen *screen = WM_window_get_active_screen(win); /*BFA - 3D Sequencer*/
+
+/*############## BFA - 3D Sequencer ##############*/
+    /* Find overridden scenes in this window and ensure they have a depsgraph. */
+    ED_screen_areas_iter (win, screen, area) {
+      LISTBASE_FOREACH (SpaceLink *, space, &area->spacedata) {
+        if (space->spacetype == SPACE_SEQ) {
+          SpaceSeq *seq = (SpaceSeq *)space;
+          if (seq->scene_override) {
+            Scene *scene_override = seq->scene_override;
+            /* For now we will always use the first (default) view_layer in the overridden scene */
+            ViewLayer *view_layer_override = static_cast<ViewLayer *>(
+                scene_override->view_layers.first);
+            Depsgraph *depsgraph = BKE_scene_ensure_depsgraph(
+                bmain, scene_override, view_layer_override);
+            if (is_after_open_file) {
+              DEG_graph_relations_update(depsgraph);
+              DEG_tag_on_visible_update(bmain, depsgraph);
+            }
+            BKE_scene_graph_update_tagged(depsgraph, bmain);
+          }
+        }
+      }
+    }
+/*############## BFA - 3D Sequencer END##############*/
+
     /* Copied to set's in scene_update_tagged_recursive() */
     scene->customdata_mask = win_combine_v3d_datamask;
     /* XXX, hack so operators can enforce data-masks #26482, GPU render. */
@@ -606,7 +632,8 @@ void wm_event_do_notifiers(bContext *C)
       }
 
       if (note->window == win ||
-          (note->window == nullptr && ELEM(note->reference, nullptr, scene))) {
+          (note->window == nullptr && ELEM(note->reference, nullptr, scene)))
+      {
         if (note->category == NC_SCENE) {
           if (note->data == ND_FRAME) {
             do_anim = true;
@@ -640,7 +667,8 @@ void wm_event_do_notifiers(bContext *C)
 
   /* The notifiers are sent without context, to keep it clean. */
   while (
-      const wmNotifier *note = static_cast<const wmNotifier *>(BLI_pophead(&wm->notifier_queue))) {
+      const wmNotifier *note = static_cast<const wmNotifier *>(BLI_pophead(&wm->notifier_queue)))
+  {
     if (wm_notifier_is_clear(note)) {
       MEM_freeN((void *)note);
       continue;
@@ -961,7 +989,7 @@ void WM_reportf(eReportType type, const char *format, ...)
 {
   va_list args;
 
-  format = TIP_(format);
+  format = RPT_(format);
   va_start(args, format);
   char *str = BLI_vsprintfN(format, args);
   WM_report(type, str);
@@ -1999,8 +2027,8 @@ void WM_operator_name_call_ptr_with_depends_on_cursor(bContext *C,
     char header_text[UI_MAX_DRAW_STR];
     SNPRINTF(header_text,
              "%s %s",
-             IFACE_("Input pending "),
-             (drawstr && drawstr[0]) ? drawstr : CTX_IFACE_(ot->translation_context, ot->name));
+             RPT_("Input pending "),
+             (drawstr && drawstr[0]) ? drawstr : CTX_RPT_(ot->translation_context, ot->name));
     if (area != nullptr) {
       ED_area_status_text(area, header_text);
     }
@@ -3193,7 +3221,8 @@ static eHandlerActionFlag wm_handlers_do_gizmo_handler(bContext *C,
           LISTBASE_FOREACH (wmKeyMapItem *, kmi, &keymap->items) {
             if ((kmi->flag & KMI_INACTIVE) == 0) {
               if (wm_eventmatch(&event_test_click, kmi) ||
-                  wm_eventmatch(&event_test_click_drag, kmi)) {
+                  wm_eventmatch(&event_test_click_drag, kmi))
+              {
                 wmOperatorType *ot = WM_operatortype_find(kmi->idname, false);
                 if (WM_operator_poll_context(C, ot, WM_OP_INVOKE_DEFAULT)) {
                   is_event_handle_all = true;
@@ -3351,8 +3380,10 @@ static eHandlerActionFlag wm_handlers_do_intern(bContext *C,
                   event->customdata = &single_lb;
 
                   const wmOperatorCallContext opcontext = wm_drop_operator_context_get(drop);
-                  int op_retval = wm_operator_call_internal(
-                      C, drop->ot, drop->ptr, nullptr, opcontext, false, event);
+                  int op_retval =
+                      drop->ot ? wm_operator_call_internal(
+                                     C, drop->ot, drop->ptr, nullptr, opcontext, false, event) :
+                                 OPERATOR_CANCELLED;
                   OPERATOR_RETVAL_CHECK(op_retval);
 
                   if ((op_retval & OPERATOR_CANCELLED) && drop->cancel) {
@@ -6233,7 +6264,8 @@ void WM_window_cursor_keymap_status_refresh(bContext *C, wmWindow *win)
   {
     bToolRef *tref = nullptr;
     if ((region->regiontype == RGN_TYPE_WINDOW) &&
-        ((1 << area->spacetype) & WM_TOOLSYSTEM_SPACE_MASK)) {
+        ((1 << area->spacetype) & WM_TOOLSYSTEM_SPACE_MASK))
+    {
       const Scene *scene = WM_window_get_active_scene(win);
       ViewLayer *view_layer = WM_window_get_active_view_layer(win);
       WorkSpace *workspace = WM_window_get_active_workspace(win);
@@ -6355,7 +6387,8 @@ bool WM_window_modal_keymap_status_draw(bContext *C, wmWindow *win, uiLayout *la
       continue;
     }
     if ((keymap->poll_modal_item != nullptr) &&
-        (keymap->poll_modal_item(op, items[i].value) == false)) {
+        (keymap->poll_modal_item(op, items[i].value) == false))
+    {
       continue;
     }
 

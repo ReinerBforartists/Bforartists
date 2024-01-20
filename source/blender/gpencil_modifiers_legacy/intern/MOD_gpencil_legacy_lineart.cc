@@ -342,6 +342,8 @@ static void edge_types_panel_draw(const bContext * /*C*/, Panel *panel)
 {
   uiLayout *layout = panel->layout;
   uiLayout *row, *col; /*bfa, added *col, *row*/
+  uiLayout *sub = uiLayoutRow(layout, false);
+
   PointerRNA ob_ptr;
   PointerRNA *ptr = gpencil_modifier_panel_get_property_pointers(panel, &ob_ptr);
 
@@ -356,21 +358,15 @@ static void edge_types_panel_draw(const bContext * /*C*/, Panel *panel)
 
   uiLayoutSetPropSep(layout, true);
 
-  uiLayout *sub = uiLayoutRow(layout, false);
-  uiLayoutSetActive(sub, has_light);
-  uiItemR(sub,
-          ptr,
-          "shadow_region_filtering",
-          UI_ITEM_NONE,
-          IFACE_("Illumination Filtering"),
-          ICON_NONE);
-
   /*bfa - original prop*/
   // uiLayout *col = uiLayoutColumn(layout, true);
   col = uiLayoutColumn(layout, true);
 
+  uiItemL(sub, TIP_("Create"), ICON_NONE); /*bfa*/
+
   sub = uiLayoutRow(col, false);
-  uiItemR(sub, ptr, "use_contour", UI_ITEM_NONE, "", ICON_NONE);
+  uiLayoutSetPropSep(sub, false); /* bfa - use_property_split = False */
+  uiItemR(sub, ptr, "use_contour", UI_ITEM_NONE, "Contour", ICON_NONE);
 
   uiLayout *entry = uiLayoutRow(sub, true);
 
@@ -437,13 +433,26 @@ static void edge_types_panel_draw(const bContext * /*C*/, Panel *panel)
   uiLayoutSetActive(entry, has_light);
 
   sub = uiLayoutRow(entry, false);
+  uiItemL(sub, TIP_("Light Object"), ICON_NONE);
+  sub = uiLayoutRow(entry, false);
+  uiItemS(sub); /*bfa - indent*/
   uiItemR(sub, ptr, "use_light_contour", UI_ITEM_NONE, IFACE_("Light Contour"), ICON_NONE);
 
-  uiItemR(entry,
+  uiItemR(sub,
           ptr,
           "use_shadow",
           UI_ITEM_NONE,
-          CTX_IFACE_(BLT_I18NCONTEXT_ID_GPENCIL, "Cast Shadow"),
+          CTX_IFACE_(BLT_I18NCONTEXT_ID_GPENCIL, "Cast Shadow"),/*bfa - changed to sub so */
+          ICON_NONE);
+  /*bfa - moved to here*/
+  sub = uiLayoutRow(layout, false);
+  uiItemS(sub); /*bfa - indent*/
+  uiLayoutSetActive(sub, has_light);
+  uiItemR(sub,
+          ptr,
+          "shadow_region_filtering",
+          UI_ITEM_NONE,
+          IFACE_("Illumination Filtering"),
           ICON_NONE);
 
   /*------------------- bfa - original props */
@@ -535,7 +544,7 @@ static void options_panel_draw(const bContext * /*C*/, Panel *panel)
   uiLayoutSetEnabled(layout, !is_baked);
 
   if (use_cache && !is_first) {
-    uiItemL(layout, TIP_("Cached from the first line art modifier"), ICON_INFO);
+    uiItemL(layout, RPT_("Cached from the first line art modifier"), ICON_INFO);
     return;
   }
 
@@ -637,7 +646,7 @@ static void occlusion_panel_draw(const bContext * /*C*/, Panel *panel)
   uiLayoutSetEnabled(layout, !is_baked);
 
   if (!show_in_front) {
-    uiItemL(layout, TIP_("Object is not in front"), ICON_INFO);
+    uiItemL(layout, RPT_("Object is not in front"), ICON_INFO);
   }
 
   layout = uiLayoutColumn(layout, false);
@@ -807,7 +816,7 @@ static void face_mark_panel_draw(const bContext * /*C*/, Panel *panel)
   uiLayoutSetEnabled(layout, !is_baked);
 
   if (use_cache && !is_first) {
-    uiItemL(layout, TIP_("Cached from the first line art modifier"), ICON_INFO);
+    uiItemL(layout, RPT_("Cached from the first line art modifier"), ICON_INFO);
     return;
   }
 
@@ -855,7 +864,7 @@ static void chaining_panel_draw(const bContext * /*C*/, Panel *panel)
   uiLayoutSetEnabled(layout, !is_baked);
 
   if (use_cache && !is_first) {
-    uiItemL(layout, TIP_("Cached from the first line art modifier"), ICON_INFO);
+    uiItemL(layout, RPT_("Cached from the first line art modifier"), ICON_INFO);
     return;
   }
 
@@ -935,7 +944,7 @@ static void vgroup_panel_draw(const bContext * /*C*/, Panel *panel)
   uiLayoutSetEnabled(layout, !is_baked);
 
   if (use_cache && !is_first) {
-    uiItemL(layout, TIP_("Cached from the first line art modifier"), ICON_INFO);
+    uiItemL(layout, RPT_("Cached from the first line art modifier"), ICON_INFO);
     return;
   }
 
@@ -976,7 +985,7 @@ static void bake_panel_draw(const bContext * /*C*/, Panel *panel)
   if (is_baked) {
     uiLayout *col = uiLayoutColumn(layout, false);
     uiLayoutSetPropSep(col, false);
-    uiItemL(col, TIP_("Modifier has baked data"), ICON_NONE);
+    uiItemL(col, RPT_("Modifier has baked data"), ICON_NONE);
     uiItemR(
         col, ptr, "is_baked", UI_ITEM_R_TOGGLE, IFACE_("Continue Without Clearing"), ICON_NONE);
   }
@@ -1015,7 +1024,7 @@ static void composition_panel_draw(const bContext * /*C*/, Panel *panel)
   /* ------------ end bfa */
 
   if (show_in_front) {
-    uiItemL(layout, TIP_("Object is shown in front"), ICON_ERROR);
+    uiItemL(layout, RPT_("Object is shown in front"), ICON_ERROR);
   }
 
   col = uiLayoutColumn(layout, false);

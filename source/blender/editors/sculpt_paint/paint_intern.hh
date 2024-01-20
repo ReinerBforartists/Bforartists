@@ -35,6 +35,7 @@ struct SpaceImage;
 struct VPaint;
 struct ViewContext;
 struct bContext;
+struct ReportList;
 struct wmEvent;
 struct wmKeyConfig;
 struct wmKeyMap;
@@ -121,9 +122,9 @@ bool vertex_paint_poll_ignore_tool(bContext *C);
  */
 bool vertex_paint_mode_poll(bContext *C);
 
-typedef void (*VPaintTransform_Callback)(const float col[3],
-                                         const void *user_data,
-                                         float r_col[3]);
+using VPaintTransform_Callback = void (*)(const float col[3],
+                                          const void *user_data,
+                                          float r_col[3]);
 
 void PAINT_OT_weight_paint_toggle(wmOperatorType *ot);
 void PAINT_OT_weight_paint(wmOperatorType *ot);
@@ -467,6 +468,9 @@ void PAINT_OT_visibility_invert(wmOperatorType *ot);
 /* `paint_mask.cc` */
 
 namespace blender::ed::sculpt_paint::mask {
+
+Array<float> duplicate_mask(const Object &object);
+
 void PAINT_OT_mask_flood_fill(wmOperatorType *ot);
 void PAINT_OT_mask_lasso_gesture(wmOperatorType *ot);
 void PAINT_OT_mask_box_gesture(wmOperatorType *ot);

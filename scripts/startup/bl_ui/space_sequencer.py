@@ -11,6 +11,7 @@ from bpy.types import (
 from bpy.app.translations import (
     contexts as i18n_contexts,
     pgettext_iface as iface_,
+    pgettext_rpt as rpt_,
 )
 from bl_ui.properties_grease_pencil_common import (
     AnnotationDataPanel,
@@ -119,7 +120,6 @@ def draw_color_balance(layout, color_balance):
         col.prop(color_balance, "invert_slope", text="Invert", icon='ARROW_LEFTRIGHT')
         split.template_color_picker(color_balance, "slope", value_slider=True, cubic=True)
 
-
 class SEQUENCER_PT_active_tool(ToolActivePanelHelper, Panel):
     bl_space_type = 'SEQUENCE_EDITOR'
     bl_region_type = 'UI'
@@ -155,18 +155,25 @@ class SEQUENCER_HT_tool_header(Header):
 class SEQUENCER_HT_header(Header):
     bl_space_type = 'SEQUENCE_EDITOR'
 
+    def draw_seq(self, layout, context): # BFA - 3D Sequencer
+        pass
+
     def draw(self, context):
         layout = self.layout
 
         st = context.space_data
 
         ALL_MT_editormenu.draw_hidden(context, layout) # bfa - show hide the editormenu
+
         layout.prop(st, "view_type", text="")
         SEQUENCER_MT_editor_menus.draw_collapsible(context, layout)
         tool_settings = context.tool_settings
         sequencer_tool_settings = tool_settings.sequencer_tool_settings
 
         layout.separator_spacer()
+        row = layout.row() # BFA - 3D Sequencer
+        row.label(text="Timeline:", icon="VIEW3D") # BFA - 3D Sequencer
+        row.template_ID(st, "scene_override", unlink="sequencer.remove_scene_override") # BFA - 3D Sequencer
 
         if st.view_type == 'PREVIEW':
             row = layout.row(align=True)
@@ -295,7 +302,10 @@ class SEQUENCER_PT_sequencer_overlay(Panel):
 
         layout.separator()
 
-        layout.prop_menu_enum(overlay_settings, "waveform_display_type")
+        layout.label(text="Waveforms")
+        layout.row().prop(overlay_settings, "waveform_display_type", expand=True)
+        layout.label(text="Waveform Style")
+        layout.row().prop(overlay_settings, "waveform_display_style", expand=True)
 
 
 # bfa - show hide the editormenu
@@ -800,10 +810,10 @@ class SEQUENCER_MT_add_scene(Menu):
         layout.operator("sequencer.scene_strip_add_new", text="New Scene", icon='ADD').type = 'NEW'
 
         bpy_data_scenes_len = len(bpy.data.scenes)
-        if bpy_data_scenes_len > 10:
+        if bpy_data_scenes_len > 14: #BFA - increased to 14 from 10
             layout.separator()
             layout.operator_context = 'INVOKE_DEFAULT'
-            layout.operator("sequencer.scene_strip_add", text="Scene...")
+            layout.operator("sequencer.scene_strip_add", text="Scene...", icon='SEQUENCE') #BFA - added icon
         elif bpy_data_scenes_len > 1:
             layout.separator()
             scene = context.scene
@@ -812,7 +822,7 @@ class SEQUENCER_MT_add_scene(Menu):
                     continue
 
                 layout.operator_context = 'INVOKE_REGION_WIN'
-                layout.operator("sequencer.scene_strip_add", text=sc_item.name).scene = sc_item.name
+                layout.operator("sequencer.scene_strip_add", text=sc_item.name, icon='SEQUENCE' ).scene = sc_item.name #BFA - added icon
 
         del bpy_data_scenes_len
 
@@ -1186,8 +1196,8 @@ class SEQUENCER_MT_retiming(Menu):
         layout = self.layout
         layout.operator_context = 'INVOKE_REGION_WIN'
 
-        layout.operator("sequencer.retiming_key_add")
-        layout.operator("sequencer.retiming_freeze_frame_add")
+        layout.operator("sequencer.retiming_key_add", icon='KEYFRAMES_INSERT')
+        layout.operator("sequencer.retiming_freeze_frame_add", icon='KEYTYPE_MOVING_HOLD_VEC')
 
 
 class SEQUENCER_MT_context_menu(Menu):
@@ -1240,7 +1250,7 @@ class SEQUENCER_MT_context_menu(Menu):
 
             layout.separator()
             layout.operator_menu_enum("sequencer.strip_modifier_add", "type", text="Add Modifier")
-            layout.operator("sequencer.strip_modifier_copy", text="Copy Modifiers to Selection")
+            layout.operator("sequencer.strip_modifier_copy", text="Copy Modifiers to Selection", icon='COPYDOWN')
 
             if strip_type != 'SOUND':
                 if selected_sequences_count >= 2:
@@ -1299,19 +1309,15 @@ class SEQUENCER_MT_context_menu(Menu):
         layout.operator_context = 'INVOKE_REGION_WIN'
 
         if context.scene.sequence_editor.selected_retiming_keys:
-            layout.operator("sequencer.retiming_freeze_frame_add")
-            layout.operator("sequencer.retiming_transition_add")
+            layout.operator("sequencer.retiming_segment_speed_set", icon='SET_TIME')
             layout.separator()
 
-            layout.operator("sequencer.retiming_segment_speed_set")
-            layout.separator()
-
-            layout.operator("sequencer.retiming_key_remove")
+            layout.operator("sequencer.retiming_freeze_frame_add", icon='KEYTYPE_MOVING_HOLD_VEC')
+            layout.operator("sequencer.retiming_transition_add", icon='NODE_CURVE_TIME')
 
     def draw(self, context):
         ed = context.scene.sequence_editor
         if ed.selected_retiming_keys:
-
             self.draw_retime(context)
         else:
             self.draw_generic(context)
@@ -2010,7 +2016,7 @@ class SEQUENCER_PT_mask(SequencerButtonsPanel, Panel):
         if mask:
             sta = mask.frame_start
             end = mask.frame_end
-            layout.label(text=iface_("Original frame range: %d-%d (%d)") % (sta, end, end - sta + 1), translate=False)
+            layout.label(text=rpt_("Original frame range: %d-%d (%d)") % (sta, end, end - sta + 1), translate=False)
 
 
 class SEQUENCER_PT_time(SequencerButtonsPanel, Panel):
@@ -3129,7 +3135,7 @@ classes = (
 
 #BFA
     SEQUENCER_PT_view_options,
-    SEQUENCER_MT_fades_add
+    SEQUENCER_MT_fades_add,
 )
 
 if __name__ == "__main__":  # only for live edit.

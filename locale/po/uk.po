@@ -1,9 +1,9 @@
 
 msgid ""
 msgstr ""
-"Project-Id-Version: Blender 4.1.0 Alpha (b'274dc815eb35')\n"
+"Project-Id-Version: Blender 4.1.0 Alpha (b'd13edee3e0cc')\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-11 11:18:04\n"
+"POT-Creation-Date: 2024-01-08 11:04:23\n"
 "PO-Revision-Date: 2021-03-01 19:15+0000\n"
 "Last-Translator: lxlalexlxl <lxlalexlxl@ukr.net>\n"
 "Language-Team: Ukrainian (Ukraine) (http://www.transifex.com/lxlalexlxl/blender/language/uk_UA/)\n"
@@ -3212,6 +3212,10 @@ msgstr "Нащадки об'єкта зазнають відносних тра�
 
 msgid "Bones"
 msgstr "Кістки"
+
+
+msgid "Index"
+msgstr "Індекс"
 
 
 msgid "Visible"
@@ -7993,10 +7997,6 @@ msgstr "Лише перше"
 
 msgid "Use the start of the stroke for the depth"
 msgstr "Використати старт штриха для глибини"
-
-
-msgid "Index"
-msgstr "Індекс"
 
 
 msgid "Profile Path editor used to build a profile path"
@@ -29303,10 +29303,6 @@ msgid "Channel"
 msgstr "Канал"
 
 
-msgid "Dope Sheet Channel"
-msgstr "Канал Аркуша експозицій"
-
-
 msgid "Snap"
 msgstr "Підхоп"
 
@@ -37976,6 +37972,10 @@ msgid "Component"
 msgstr "Компонент"
 
 
+msgid "Bake"
+msgstr "Запікання"
+
+
 msgid "Collection Info"
 msgstr "Інфо Колекції"
 
@@ -39393,6 +39393,10 @@ msgid "Value to Normal"
 msgstr "Значення в нормаль"
 
 
+msgid "Socket Type"
+msgstr "Тип роз'єму"
+
+
 msgid "Node Inputs"
 msgstr "Вводи вузлів"
 
@@ -39703,10 +39707,6 @@ msgstr "Ховати значення уводу роз'єму навіть то
 
 msgid "Layer Selection"
 msgstr "Вибрання Шару"
-
-
-msgid "Socket Type"
-msgstr "Тип роз'єму"
 
 
 msgid "Boolean Node Socket Interface"
@@ -41029,6 +41029,10 @@ msgstr "Вирівняти кістки"
 
 msgid "Align selected bones to the active bone (or to their parent)"
 msgstr "Вирівняти вибрані кістки за активною кісткою (або її предком)"
+
+
+msgid "Collection Index"
+msgstr "Індекс Колекції"
 
 
 msgctxt "Operator"
@@ -43521,6 +43525,14 @@ msgid "Reset original length of bone for Stretch To Constraint"
 msgstr "Скинути початкову довжину кістки для примусу Розтяг за"
 
 
+msgid "Error distance threshold (in object units)"
+msgstr "Поріг помилки відстані (в об'єктних одиницях)"
+
+
+msgid "Duplicate"
+msgstr "Дублювання"
+
+
 msgid "(De)select all control points"
 msgstr "(Не) вибрати всі керувальні точки"
 
@@ -43528,6 +43540,15 @@ msgstr "(Не) вибрати всі керувальні точки"
 msgctxt "Operator"
 msgid "Select Random"
 msgstr "Вибрати Випадково"
+
+
+msgctxt "Operator"
+msgid "Clear Tilt"
+msgstr "Зчистити нахил"
+
+
+msgid "Clear the tilt of selected control points"
+msgstr "Зчистити нахил вибраних керувальних точок"
 
 
 msgctxt "Operator"
@@ -43602,10 +43623,6 @@ msgstr "Рисувати Криву"
 
 msgid "Draw a freehand spline"
 msgstr "Рисувати вільноформного сплайну"
-
-
-msgid "Error distance threshold (in object units)"
-msgstr "Поріг помилки відстані (в об'єктних одиницях)"
 
 
 msgctxt "Operator"
@@ -44103,15 +44120,6 @@ msgid "Switch direction of selected splines"
 msgstr "Змінити напрям обраного сплайна"
 
 
-msgctxt "Operator"
-msgid "Clear Tilt"
-msgstr "Зчистити нахил"
-
-
-msgid "Clear the tilt of selected control points"
-msgstr "Зчистити нахил вибраних керувальних точок"
-
-
 msgid "Add a new control point (linked to only selected end-curve one, if any)"
 msgstr "Додати нову керувальну точку (і зв'язати з єдиною вибраною кривою, якщо така є)"
 
@@ -44430,11 +44438,6 @@ msgstr "Ейлер (ZYX)"
 
 msgid "Convert rotations to euler ZYX"
 msgstr "Конвертувати оберти в Ейлерові - ZYX"
-
-
-msgctxt "Operator"
-msgid "Export STL"
-msgstr "Експорт STL"
 
 
 msgid "Save STL triangle mesh data"
@@ -48383,10 +48386,6 @@ msgid "Flat"
 msgstr "Плоско"
 
 
-msgid "Duplicate"
-msgstr "Дублювання"
-
-
 msgctxt "Operator"
 msgid "Select Mode"
 msgstr "Режим Вибору"
@@ -49174,11 +49173,6 @@ msgstr "Вживати визначення зображення як точки
 
 msgid "Use alpha channel for transparency"
 msgstr "Вжити канал альфа для прозорості"
-
-
-msgctxt "Operator"
-msgid "Import STL"
-msgstr "Імпорт STL"
 
 
 msgid "Load STL triangle mesh data"
@@ -54462,10 +54456,6 @@ msgid "Show only objects in collection (Shift to extend)"
 msgstr "Показувати лише об'єкти у колекції  (Shift для розширення)"
 
 
-msgid "Collection Index"
-msgstr "Індекс Колекції"
-
-
 msgid "Index of the collection to change visibility"
 msgstr "Індекс колекції для зміни видимості"
 
@@ -59018,10 +59008,6 @@ msgstr "Запекти фізику"
 
 msgid "Bake physics"
 msgstr "Запекти фізику"
-
-
-msgid "Bake"
-msgstr "Запікання"
 
 
 msgctxt "Operator"
@@ -67077,6 +67063,16 @@ msgstr "Про Blender"
 
 msgid "Open a window with information about Blender"
 msgstr "Відкрити вікно з інформацією про Blender"
+
+
+msgctxt "Operator"
+msgid "Export STL"
+msgstr "Експорт STL"
+
+
+msgctxt "Operator"
+msgid "Import STL"
+msgstr "Імпорт STL"
 
 
 msgctxt "Operator"
@@ -77408,18 +77404,6 @@ msgid "Waveform Display"
 msgstr "Показ Хвилеформи"
 
 
-msgid "Waveforms Off"
-msgstr "Вимкнути форму хвилі"
-
-
-msgid "Waveforms On"
-msgstr "Увімкнути форму хвилі"
-
-
-msgid "Use Strip Option"
-msgstr "Вжити опцію смужки"
-
-
 msgid "Sequencer Tool Settings"
 msgstr "Устави Засобу Секвенсера"
 
@@ -80358,22 +80342,6 @@ msgid "Studio light image file has separate \"diffuse\" and \"specular\" passes"
 msgstr "Зображення студійного освітлювача має окремі проходи «розсіяння» та «блікування»"
 
 
-msgid "Irradiance Cache Path"
-msgstr "Шлях Кешу Опроміненості"
-
-
-msgid "Path where the irradiance cache is stored"
-msgstr "Шлях, де зберігається кеш опроміненості"
-
-
-msgid "SH Cache Path"
-msgstr "Шлях Кешу Сферичної Гармоніки"
-
-
-msgid "Path where the spherical harmonics cache is stored"
-msgstr "Шлях, де зберігається кеш сферичної гармоніки"
-
-
 msgid "Lights user to display objects in solid draw mode"
 msgstr "Світло, що використовується для показу об'єктів в режимі суцільного малювання"
 
@@ -81060,6 +81028,10 @@ msgstr "Група каналів"
 
 msgid "Channels Selected"
 msgstr "Канали вибрані"
+
+
+msgid "Dope Sheet Channel"
+msgstr "Канал Аркуша експозицій"
 
 
 msgid "Dope Sheet Sub-channel"
@@ -83465,14 +83437,6 @@ msgstr "3D обертання"
 
 msgid "3D View Overlay Settings"
 msgstr "Устави Накладання 3D Огляду"
-
-
-msgid "Backwire Opacity"
-msgstr "Безпрозорість Дроту Позаду"
-
-
-msgid "Opacity when rendering transparent wires"
-msgstr "Безпрозорість при рендерингу прозорих дротів"
 
 
 msgid "Display Handles"
@@ -89818,6 +89782,10 @@ msgid "Unable to find toolbar group"
 msgstr "Неможливо знайти групу смуги засобів"
 
 
+msgid "Taper Start"
+msgstr "Конусність Старт"
+
+
 msgid ""
 "%s\n"
 "• %s toggles snap while dragging.\n"
@@ -89832,10 +89800,6 @@ msgstr ""
 
 msgid "Depth:"
 msgstr "Глибина:"
-
-
-msgid "Taper Start"
-msgstr "Конусність Старт"
 
 
 msgid "Weight: %.3f"
@@ -91633,86 +91597,6 @@ msgstr "Видалити Сегмент"
 msgctxt "Operator"
 msgid "Delete Point"
 msgstr "Видалити Точку"
-
-
-msgctxt "Operator"
-msgid "Copyright"
-msgstr "Авторське право"
-
-
-msgctxt "Operator"
-msgid "Registered Trademark"
-msgstr "Зареєстрована торгова марка"
-
-
-msgctxt "Operator"
-msgid "Degree Sign"
-msgstr "Знак Градуса"
-
-
-msgctxt "Operator"
-msgid "Multiplication Sign"
-msgstr "Знак Множення"
-
-
-msgctxt "Operator"
-msgid "Superscript 1"
-msgstr "Верхній індекс 1"
-
-
-msgctxt "Operator"
-msgid "Superscript 2"
-msgstr "Верхній індекс 2"
-
-
-msgctxt "Operator"
-msgid "Superscript 3"
-msgstr "Верхній індекс 3"
-
-
-msgctxt "Operator"
-msgid "Double >>"
-msgstr "Подвійне >>"
-
-
-msgctxt "Operator"
-msgid "Double <<"
-msgstr "Подвійне <<"
-
-
-msgctxt "Operator"
-msgid "Promillage"
-msgstr "Проміле"
-
-
-msgctxt "Operator"
-msgid "Dutch Florin"
-msgstr "Нідерландський Флорин"
-
-
-msgctxt "Operator"
-msgid "British Pound"
-msgstr "Британський Фунт"
-
-
-msgctxt "Operator"
-msgid "Japanese Yen"
-msgstr "Японська Єна"
-
-
-msgctxt "Operator"
-msgid "German S"
-msgstr "Німецьке S"
-
-
-msgctxt "Operator"
-msgid "Spanish Question Mark"
-msgstr "Іспанський Знак Питання"
-
-
-msgctxt "Operator"
-msgid "Spanish Exclamation Mark"
-msgstr "Іспанський Знак Оклику"
 
 
 msgctxt "Operator"
@@ -94400,6 +94284,18 @@ msgid "Browse ID data to be linked"
 msgstr "Переглянути дані ID для пов'язання"
 
 
+msgid "Today"
+msgstr "Сьогодні"
+
+
+msgid "Yesterday"
+msgstr "Учора"
+
+
+msgid "Modified"
+msgstr "Змінено"
+
+
 msgctxt "Object"
 msgid "New"
 msgstr "Новий"
@@ -94618,6 +94514,10 @@ msgstr "Групи згладжування"
 
 msgid "ASCII"
 msgstr "ASCII"
+
+
+msgid "Rigging"
+msgstr "Оснащення (rigging)"
 
 
 msgctxt "Mesh"
@@ -96595,14 +96495,6 @@ msgstr "Деякі дані не вдалось реконструювати (п
 
 msgid "Average re-projection error: %.2f px"
 msgstr "Середня помилка перепроєктування: %.2f пікселів"
-
-
-msgid "Today"
-msgstr "Сьогодні"
-
-
-msgid "Yesterday"
-msgstr "Учора"
 
 
 msgid "File path"
@@ -99985,10 +99877,6 @@ msgid "File Not Found"
 msgstr "Файл Не Знайдено"
 
 
-msgid "Modified"
-msgstr "Змінено"
-
-
 msgid "For security reasons, automatic execution of Python scripts in this file was disabled:"
 msgstr "З причин безпеки автоматичне виконання скриптів Python у цьому файлів було вимкнено:"
 
@@ -100275,10 +100163,6 @@ msgstr "Додати сіть"
 
 msgid "Import-Export"
 msgstr "Імпорт-експорт"
-
-
-msgid "Rigging"
-msgstr "Оснащення (rigging)"
 
 
 msgid "Video Tools"

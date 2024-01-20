@@ -13,7 +13,6 @@
 #include "BLI_task.h"
 
 #include "DNA_brush_types.h"
-#include "DNA_meshdata_types.h"
 #include "DNA_object_types.h"
 
 #include "BKE_ccg.h"
@@ -181,10 +180,6 @@ static void do_multiplane_scrape_brush_task(Object *ob,
                                                                 &automask_data);
 
     mul_v3_v3fl(proxy[vd.i], val, fade);
-
-    if (vd.is_mesh) {
-      BKE_pbvh_vert_tag_update_normal(ss->pbvh, vd.vertex);
-    }
   }
   BKE_pbvh_vertex_iter_end;
 }

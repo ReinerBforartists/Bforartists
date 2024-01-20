@@ -11,7 +11,7 @@
 #include "ED_screen.hh"
 #include "ED_view3d.hh"
 
-#include "DRW_render.h"
+#include "DRW_render.hh"
 
 #include "RE_pipeline.h"
 
@@ -103,8 +103,12 @@ static void eevee_engine_init(void *vedata)
 static void eevee_draw_scene(void *vedata)
 {
   EEVEE_Data *ved = reinterpret_cast<EEVEE_Data *>(vedata);
-  DefaultFramebufferList *dfbl = DRW_viewport_framebuffer_list_get();
-  ved->instance->draw_viewport(dfbl);
+  if (DRW_state_is_viewport_image_render()) {
+    ved->instance->draw_viewport_image_render();
+  }
+  else {
+    ved->instance->draw_viewport();
+  }
   STRNCPY(ved->info, ved->instance->info.c_str());
   /* Reset view for other following engines. */
   DRW_view_set_active(nullptr);

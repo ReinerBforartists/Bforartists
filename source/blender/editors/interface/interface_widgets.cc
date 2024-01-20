@@ -1998,7 +1998,8 @@ static void widget_draw_text(const uiFontStyle *fstyle,
         bool has_prev = false;
         if (pos > 0) {
           if (BLF_str_offset_to_glyph_bounds(
-                  fstyle->uifont_id, drawstr + but->ofs, pos - 1, &bounds)) {
+                  fstyle->uifont_id, drawstr + but->ofs, pos - 1, &bounds))
+          {
             if (bounds.xmax > bounds.xmin) {
               prev_right_edge = bounds.xmax;
             }
@@ -3467,10 +3468,12 @@ static void widget_numbut_draw(uiWidgetColors *wcol,
 
     /* outline */
     wtb.draw_inner = false;
+    wtb.draw_emboss = roundboxalign & (UI_CNR_BOTTOM_LEFT | UI_CNR_BOTTOM_RIGHT);
     widgetbase_draw(&wtb, wcol);
   }
   else {
     /* inner and outline */
+    wtb.draw_emboss = roundboxalign & (UI_CNR_BOTTOM_LEFT | UI_CNR_BOTTOM_RIGHT);
     widgetbase_draw(&wtb, wcol);
   }
 
@@ -4387,6 +4390,7 @@ static void widget_box(uiBut *but,
   const float rad = widget_radius_from_zoom(zoom, wcol);
   round_box_edges(&wtb, roundboxalign, rect, rad);
 
+  wtb.draw_emboss = roundboxalign & (UI_CNR_BOTTOM_LEFT | UI_CNR_BOTTOM_RIGHT);
   widgetbase_draw(&wtb, wcol);
 
   copy_v3_v3_uchar(wcol->inner, old_col);
@@ -4441,6 +4445,7 @@ static void widget_roundbut_exec(uiWidgetColors *wcol,
   /* half rounded */
   round_box_edges(&wtb, roundboxalign, rect, rad);
 
+  wtb.draw_emboss = roundboxalign & (UI_CNR_BOTTOM_LEFT | UI_CNR_BOTTOM_RIGHT);
   widgetbase_draw(&wtb, wcol);
 }
 
@@ -5097,7 +5102,8 @@ void ui_draw_but(const bContext *C, ARegion *region, uiStyle *style, uiBut *but,
   }
 
   if ((but->editstr) ||
-      (UNLIKELY(but->flag & UI_BUT_DRAG_MULTI) && ui_but_drag_multi_edit_get(but))) {
+      (UNLIKELY(but->flag & UI_BUT_DRAG_MULTI) && ui_but_drag_multi_edit_get(but)))
+  {
     state.is_text_input = true;
   }
 
@@ -5416,7 +5422,8 @@ void ui_draw_pie_center(uiBlock *block)
   immUnbindProgram();
 
   if (U.pie_menu_confirm > 0 &&
-      !(block->pie_data.flags & (UI_PIE_INVALID_DIR | UI_PIE_CLICK_STYLE))) {
+      !(block->pie_data.flags & (UI_PIE_INVALID_DIR | UI_PIE_CLICK_STYLE)))
+  {
     const float pie_confirm_radius = UI_SCALE_FAC * (pie_radius_internal + U.pie_menu_confirm);
     const float pie_confirm_external = UI_SCALE_FAC *
                                        (pie_radius_internal + U.pie_menu_confirm + 7.0f);

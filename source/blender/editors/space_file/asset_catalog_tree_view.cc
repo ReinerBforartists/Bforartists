@@ -294,7 +294,7 @@ void AssetCatalogTreeViewItem::build_context_menu(bContext &C, uiLayout &column)
 
   uiItemFullO(&column,
               "ASSET_OT_catalog_new",
-              "New Catalog",
+              IFACE_("New Catalog"),
               ICON_ADD,
               nullptr,
               WM_OP_INVOKE_DEFAULT,
@@ -306,14 +306,14 @@ void AssetCatalogTreeViewItem::build_context_menu(bContext &C, uiLayout &column)
   BLI_uuid_format(catalog_id_str_buffer, catalog_item_.get_catalog_id());
   uiItemFullO(&column,
               "ASSET_OT_catalog_delete",
-              "Delete Catalog",
+              IFACE_("Delete Catalog"),
               ICON_DELETE,
               nullptr,
               WM_OP_INVOKE_DEFAULT,
               UI_ITEM_NONE,
               &props);
   RNA_string_set(&props, "catalog_id", catalog_id_str_buffer);
-  uiItemO(&column, "Rename", ICON_RENAME, "UI_OT_view_item_rename");
+  uiItemO(&column, IFACE_("Rename"), ICON_RENAME, "UI_OT_view_item_rename");
 
   /* Doesn't actually exist right now, but could be defined in Python. Reason that this isn't done
    * in Python yet is that catalogs are not exposed in BPY, and we'd somehow pass the clicked on
@@ -376,11 +376,11 @@ bool AssetCatalogDropTarget::can_drop(const wmDrag &drag, const char **r_disable
      * path and the catalog system will generate missing parents from the path). But it does
      * appear broken to users, so disabling entirely. */
     if (catalog_item_.catalog_path().is_contained_in(drag_catalog->path)) {
-      *r_disabled_hint = TIP_("Catalog cannot be dropped into itself");
+      *r_disabled_hint = RPT_("Catalog cannot be dropped into itself");
       return false;
     }
     if (catalog_item_.catalog_path() == drag_catalog->path.parent()) {
-      *r_disabled_hint = TIP_("Catalog is already placed inside this catalog");
+      *r_disabled_hint = RPT_("Catalog is already placed inside this catalog");
       return false;
     }
     return true;
@@ -521,7 +521,7 @@ bool AssetCatalogDropTarget::has_droppable_asset(const wmDrag &drag, const char 
     }
   }
 
-  *r_disabled_hint = TIP_("Only assets from this current file can be moved between catalogs");
+  *r_disabled_hint = RPT_("Only assets from this current file can be moved between catalogs");
   return false;
 }
 
@@ -529,7 +529,7 @@ bool AssetCatalogDropTarget::can_modify_catalogs(const ::AssetLibrary &library,
                                                  const char **r_disabled_hint)
 {
   if (ED_asset_catalogs_read_only(library)) {
-    *r_disabled_hint = TIP_("Catalogs cannot be edited in this asset library");
+    *r_disabled_hint = RPT_("Catalogs cannot be edited in this asset library");
     return false;
   }
   return true;
@@ -607,7 +607,7 @@ bool AssetCatalogTreeViewAllItem::DropTarget::can_drop(const wmDrag &drag,
 
   const AssetCatalog *drag_catalog = AssetCatalogDropTarget::get_drag_catalog(drag, library);
   if (drag_catalog->path.parent() == "") {
-    *r_disabled_hint = TIP_("Catalog is already placed at the highest level");
+    *r_disabled_hint = RPT_("Catalog is already placed at the highest level");
     return false;
   }
 

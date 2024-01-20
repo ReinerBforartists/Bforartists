@@ -42,7 +42,6 @@
 #include "BKE_global.h"
 #include "BKE_gpencil_modifier_legacy.h"
 #include "BKE_idtype.h"
-#include "BKE_main.hh"
 #include "BKE_material.h"
 #include "BKE_modifier.hh"
 #include "BKE_node.h"
@@ -66,7 +65,7 @@
 #include "ED_datafiles.h"
 
 #include "WM_api.hh"
-#include "WM_toolsystem.h"
+#include "WM_toolsystem.hh"
 
 #include "RNA_define.hh"
 

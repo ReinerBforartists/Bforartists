@@ -26,7 +26,7 @@
 #include "IMB_imbuf_types.h"
 #include "IMB_openexr.h"
 
-#include "BKE_colortools.h"
+#include "BKE_colortools.hh"
 #include "BKE_global.h"
 #include "BKE_image.h"
 #include "BKE_image_format.h"
@@ -123,7 +123,8 @@ bool BKE_image_save_options_init(ImageSaveOptions *opts,
     else {
       BKE_image_format_from_imbuf(&opts->im_format, ibuf);
       if (ima->source == IMA_SRC_GENERATED &&
-          !IMB_colormanagement_space_name_is_data(ima_colorspace)) {
+          !IMB_colormanagement_space_name_is_data(ima_colorspace))
+      {
         ima_colorspace = IMB_colormanagement_role_colorspace_name_get(COLOR_ROLE_DEFAULT_BYTE);
       }
 

@@ -188,14 +188,14 @@ static void deform_verts(ModifierData *md,
    * This is an unreliable check for the topology check, but allows some
    * handy configuration like emitting particles from inside particle
    * instance. */
-  if (had_mesh_final && (psmd->mesh_final->totvert != psmd->totdmvert ||
-                         psmd->mesh_final->totedge != psmd->totdmedge ||
+  if (had_mesh_final && (psmd->mesh_final->verts_num != psmd->totdmvert ||
+                         psmd->mesh_final->edges_num != psmd->totdmedge ||
                          psmd->mesh_final->totface_legacy != psmd->totdmface))
   {
     psys->recalc |= ID_RECALC_PSYS_RESET;
   }
-  psmd->totdmvert = psmd->mesh_final->totvert;
-  psmd->totdmedge = psmd->mesh_final->totedge;
+  psmd->totdmvert = psmd->mesh_final->verts_num;
+  psmd->totdmedge = psmd->mesh_final->edges_num;
   psmd->totdmface = psmd->mesh_final->totface_legacy;
 
   {
@@ -226,7 +226,7 @@ static void panel_draw(const bContext * /*C*/, Panel *panel)
   ModifierData *md = (ModifierData *)ptr->data;
   ParticleSystem *psys = ((ParticleSystemModifierData *)md)->psys;
 
-  uiItemL(layout, TIP_("Settings are in the particle tab"), ICON_NONE);
+  uiItemL(layout, RPT_("Settings are in the particle tab"), ICON_NONE);
 
   if (!(ob->mode & OB_MODE_PARTICLE_EDIT)) {
     if (ELEM(psys->part->ren_as, PART_DRAW_GR, PART_DRAW_OB)) {

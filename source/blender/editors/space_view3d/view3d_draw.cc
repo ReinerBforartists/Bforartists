@@ -47,7 +47,7 @@
 #include "DNA_view3d_types.h"
 #include "DNA_windowmanager_types.h"
 
-#include "DRW_engine.h"
+#include "DRW_engine.hh"
 #include "DRW_select_buffer.hh"
 
 #include "ED_gpencil_legacy.hh"
@@ -1623,6 +1623,7 @@ static void view3d_update_viewer_path(const bContext *C)
 
 void view3d_main_region_draw(const bContext *C, ARegion *region)
 {
+  using namespace blender::draw;
   Main *bmain = CTX_data_main(C);
   View3D *v3d = CTX_wm_view3d(C);
 
@@ -1688,6 +1689,7 @@ void ED_view3d_draw_offscreen(Depsgraph *depsgraph,
                               GPUOffScreen *ofs,
                               GPUViewport *viewport)
 {
+  using namespace blender::draw;
   RegionView3D *rv3d = static_cast<RegionView3D *>(region->regiondata);
   RenderEngineType *engine_type = ED_view3d_engine_type(scene, drawtype);
 
@@ -1751,6 +1753,10 @@ void ED_view3d_draw_offscreen(Depsgraph *depsgraph,
   }
   else {
     view3d_main_region_setup_offscreen(depsgraph, scene, v3d, region, viewmat, winmat);
+  }
+
+  if (viewport) {
+    GPU_viewport_tag_update(viewport);
   }
 
   /* main drawing call */
@@ -1905,8 +1911,9 @@ ImBuf *ED_view3d_draw_offscreen_imbuf(Depsgraph *depsgraph,
                                       int alpha_mode,
                                       const char *viewname,
                                       const bool restore_rv3d_mats,
-                                      /* output vars */
                                       GPUOffScreen *ofs,
+                                      GPUViewport *viewport,
+                                      /* output vars */
                                       char err_out[256])
 {
   RegionView3D *rv3d = static_cast<RegionView3D *>(region->regiondata);
@@ -2024,7 +2031,7 @@ ImBuf *ED_view3d_draw_offscreen_imbuf(Depsgraph *depsgraph,
                            do_color_management,
                            restore_rv3d_mats,
                            ofs,
-                           nullptr);
+                           viewport);
 
   if (ibuf->float_buffer.data) {
     GPU_offscreen_read_color(ofs, GPU_DATA_FLOAT, ibuf->float_buffer.data);
@@ -2065,6 +2072,7 @@ ImBuf *ED_view3d_draw_offscreen_imbuf_simple(Depsgraph *depsgraph,
                                              int alpha_mode,
                                              const char *viewname,
                                              GPUOffScreen *ofs,
+                                             GPUViewport *viewport,
                                              char err_out[256])
 {
   View3D v3d = blender::dna::shallow_zero_initialize();
@@ -2159,6 +2167,7 @@ ImBuf *ED_view3d_draw_offscreen_imbuf_simple(Depsgraph *depsgraph,
                                         viewname,
                                         true,
                                         ofs,
+                                        viewport,
                                         err_out);
 }
 
@@ -2220,7 +2229,8 @@ static void validate_object_select_id(Depsgraph *depsgraph,
   }
   /* texture paint mode sampling */
   else if (obact_eval && (obact_eval->mode & OB_MODE_TEXTURE_PAINT) &&
-           (v3d->shading.type > OB_WIRE)) {
+           (v3d->shading.type > OB_WIRE))
+  {
     /* do nothing */
   }
   else if ((obact_eval && (obact_eval->mode & OB_MODE_PARTICLE_EDIT)) && !XRAY_ENABLED(v3d)) {

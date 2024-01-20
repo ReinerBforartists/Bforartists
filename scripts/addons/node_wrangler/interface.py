@@ -345,11 +345,7 @@ class NWAttributeMenu(bpy.types.Menu):
 
     @classmethod
     def poll(cls, context):
-        valid = False
-        if nw_check(context):
-            snode = context.space_data
-            valid = snode.tree_type == 'ShaderNodeTree'
-        return valid
+        return nw_check(context) and context.space_data.tree_type == 'ShaderNodeTree'
 
     def draw(self, context):
         l = self.layout
@@ -365,7 +361,8 @@ class NWAttributeMenu(bpy.types.Menu):
         for obj in objs:
             if obj.data.attributes:
                 for attr in obj.data.attributes:
-                    attrs.append(attr.name)
+                    if not attr.is_internal:
+                        attrs.append(attr.name)
         attrs = list(set(attrs))  # get a unique list
 
         if attrs:
@@ -414,11 +411,11 @@ def bgreset_menu_func(self, context):
 
 
 def save_viewer_menu_func(self, context):
-    if nw_check(context):
-        if context.space_data.tree_type == 'CompositorNodeTree':
-            if context.scene.node_tree.nodes.active:
-                if context.scene.node_tree.nodes.active.type == "VIEWER":
-                    self.layout.operator(operators.NWSaveViewer.bl_idname, icon='FILE_IMAGE')
+    if (nw_check(context)
+            and context.space_data.tree_type == 'CompositorNodeTree'
+            and context.scene.node_tree.nodes.active
+            and context.scene.node_tree.nodes.active.type == "VIEWER"):
+        self.layout.operator(operators.NWSaveViewer.bl_idname, icon='FILE_IMAGE')
 
 
 def reset_nodes_button(self, context):

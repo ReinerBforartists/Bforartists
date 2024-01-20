@@ -1,9 +1,9 @@
 
 msgid ""
 msgstr ""
-"Project-Id-Version: Blender 4.1.0 Alpha (b'274dc815eb35')\n"
+"Project-Id-Version: Blender 4.1.0 Alpha (b'd13edee3e0cc')\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-11 11:18:04\n"
+"POT-Creation-Date: 2024-01-08 11:04:23\n"
 "PO-Revision-Date: 2023-11-15 02:54+0000\n"
 "Last-Translator: bitigchi <bitigchi@me.com>\n"
 "Language-Team: Turkish <https://translate.blender.org/projects/blender-ui/ui/tr/>\n"
@@ -3907,10 +3907,6 @@ msgid "Active Collection Index"
 msgstr "Etkin Koleksiyon İndeksi"
 
 
-msgid "The index of the Armature's active bone collection; -1 when there is no active collection"
-msgstr "Armatürün etkin kemik koleksiyonunun indeksi; etkin koleksiyon yokken -1'dir"
-
-
 msgid "Active Collection Name"
 msgstr "Etkin Koleksiyon Adı"
 
@@ -7566,10 +7562,6 @@ msgid "Channel"
 msgstr "Kanal"
 
 
-msgid "Dope Sheet Channel"
-msgstr "Döküm Kağıdı Kanalı"
-
-
 msgid "Snap"
 msgstr "Yakala"
 
@@ -7943,6 +7935,10 @@ msgid "Rotation to Quaternion"
 msgstr "Döndürmeden Dördeye"
 
 
+msgid "Active Item Index"
+msgstr "Etkin Öge İndeksi"
+
+
 msgid "Original"
 msgstr "Özgün"
 
@@ -7970,10 +7966,6 @@ msgstr "Nesne Bilgisi"
 
 msgid "Points to Curves"
 msgstr "Noktalardan Eğriye"
-
-
-msgid "Active Item Index"
-msgstr "Etkin Öge İndeksi"
 
 
 msgid "Set Selection"
@@ -8934,6 +8926,10 @@ msgid "Duplicate Objects"
 msgstr "Nesneleri Çoğalt"
 
 
+msgid "Bake ID"
+msgstr "Pişirme Kimliği"
+
+
 msgid "Input Name"
 msgstr "Girdi Adı"
 
@@ -8989,10 +8985,6 @@ msgstr "Kıl Yarıçapı"
 msgctxt "Operator"
 msgid "Bake Simulation"
 msgstr "Pişirme Benzetimi"
-
-
-msgid "Bake ID"
-msgstr "Pişirme Kimliği"
 
 
 msgctxt "Operator"
@@ -10241,6 +10233,10 @@ msgid "Motion Tracking"
 msgstr "Hareket İzleme"
 
 
+msgid "Viewer Node"
+msgstr "Görüntüleyici Düğümü"
+
+
 msgctxt "Operator"
 msgid "Density"
 msgstr "Yoğunluk"
@@ -10345,14 +10341,6 @@ msgstr "Gres Kalemi 3.0"
 
 msgid "New Curves Tools"
 msgstr "Yeni Eğriler Araçları"
-
-
-msgid "Override Templates"
-msgstr "Şablonları Geçersiz Kıl"
-
-
-msgid "Enable library override template in the Python API"
-msgstr "Python API'sinde kitaplık geçersiz kılma şablonunu etkinleştir"
 
 
 msgid "Animation Player"
@@ -10762,10 +10750,6 @@ msgid "Object Evaluation State"
 msgstr "Nesne Değerlendirme Durumu"
 
 
-msgid "Viewer Node"
-msgstr "Görüntüleyici Düğümü"
-
-
 msgid "Syntax highlight for scripting"
 msgstr "Betik yazımı için sözdizim vurgulaması"
 
@@ -10917,6 +10901,10 @@ msgstr "Döküm Kağıdı için tema ayarları"
 
 msgid "Active Channel Group"
 msgstr "Etkin Kanal Grubu"
+
+
+msgid "Dope Sheet Channel"
+msgstr "Döküm Kağıdı Kanalı"
 
 
 msgid "Dope Sheet Sub-channel"
@@ -12096,11 +12084,6 @@ msgid "Fair Positions"
 msgstr "Eşit Konumlar"
 
 
-msgctxt "Operator"
-msgid "Move to Bone Collection"
-msgstr "Kemik Koleksiyonuna Taşı"
-
-
 msgid "Bone Settings"
 msgstr "Kemik Ayarları"
 
@@ -12108,6 +12091,11 @@ msgstr "Kemik Ayarları"
 msgctxt "Operator"
 msgid "Rename Active Bone..."
 msgstr "Etkin Kemiği Yeniden Adlandır..."
+
+
+msgctxt "Operator"
+msgid "Move to Bone Collection"
+msgstr "Kemik Koleksiyonuna Taşı"
 
 
 msgctxt "GPencil"

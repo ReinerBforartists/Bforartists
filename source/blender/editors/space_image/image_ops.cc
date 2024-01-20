@@ -33,7 +33,7 @@
 #include "DNA_scene_types.h"
 #include "DNA_screen_types.h"
 
-#include "BKE_colortools.h"
+#include "BKE_colortools.hh"
 #include "BKE_context.hh"
 #include "BKE_global.h"
 #include "BKE_icons.h"
@@ -86,7 +86,7 @@
 
 #include "RE_engine.h"
 
-#include "image_intern.h"
+#include "image_intern.hh"
 
 /* -------------------------------------------------------------------- */
 /** \name View Navigation Utilities
@@ -1299,7 +1299,7 @@ static Image *image_open_single(Main *bmain,
                 RPT_ERROR,
                 "Cannot read '%s': %s",
                 range->filepath,
-                errno ? strerror(errno) : TIP_("unsupported image format"));
+                errno ? strerror(errno) : RPT_("unsupported image format"));
     return nullptr;
   }
 

@@ -29,7 +29,7 @@
 #include "DNA_scene_types.h"
 #include "DNA_screen_types.h"
 
-#include "BKE_colortools.h"
+#include "BKE_colortools.hh"
 #include "BKE_deform.h"
 #include "BKE_gpencil_geom_legacy.h"
 #include "BKE_gpencil_legacy.h"
@@ -104,7 +104,8 @@ void BKE_gpencil_cache_data_init(Depsgraph *depsgraph, Object *ob)
         mmd->cache_data = static_cast<ShrinkwrapTreeData *>(
             MEM_callocN(sizeof(ShrinkwrapTreeData), __func__));
         if (BKE_shrinkwrap_init_tree(
-                mmd->cache_data, target, mmd->shrink_type, mmd->shrink_mode, false)) {
+                mmd->cache_data, target, mmd->shrink_type, mmd->shrink_mode, false))
+        {
         }
         else {
           MEM_SAFE_FREE(mmd->cache_data);
@@ -541,7 +542,7 @@ void BKE_gpencil_modifier_set_error(GpencilModifierData *md, const char *format,
 {
   char buffer[512];
   va_list ap;
-  const char *format_tip = TIP_(format);
+  const char *format_tip = RPT_(format);
 
   va_start(ap, format);
   vsnprintf(buffer, sizeof(buffer), format_tip, ap);

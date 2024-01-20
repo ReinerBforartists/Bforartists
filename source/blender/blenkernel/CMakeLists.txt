@@ -309,6 +309,8 @@ set(SRC
   intern/vfontdata_freetype.cc
   intern/viewer_path.cc
   intern/volume.cc
+  intern/volume_grid.cc
+  intern/volume_grid_file_cache.cc
   intern/volume_render.cc
   intern/volume_to_mesh.cc
   intern/workspace.cc
@@ -355,8 +357,8 @@ set(SRC
   BKE_cloth.hh
   BKE_collection.h
   BKE_collision.h
-  BKE_colorband.h
-  BKE_colortools.h
+  BKE_colorband.hh
+  BKE_colortools.hh
   BKE_compute_contexts.hh
   BKE_constraint.h
   BKE_context.hh
@@ -473,7 +475,7 @@ set(SRC
   BKE_pbvh_api.hh
   BKE_pbvh_pixels.hh
   BKE_pointcache.h
-  BKE_pointcloud.h
+  BKE_pointcloud.hh
   BKE_pose_backup.h
   BKE_preferences.h
   BKE_preview_image.hh
@@ -508,6 +510,9 @@ set(SRC
   BKE_vfontdata.hh
   BKE_viewer_path.hh
   BKE_volume.hh
+  BKE_volume_enums.hh
+  BKE_volume_grid.hh
+  BKE_volume_grid_file_cache.hh
   BKE_volume_openvdb.hh
   BKE_volume_render.hh
   BKE_volume_to_mesh.hh
@@ -853,13 +858,14 @@ if(WITH_GTESTS)
     intern/main_test.cc
     intern/nla_test.cc
     intern/tracking_test.cc
+    intern/volume_test.cc
   )
   set(TEST_INC
     ../editors/include
   )
-  include(GTestTesting)
-  blender_add_test_lib(bf_blenkernel_tests "${TEST_SRC}" "${INC};${TEST_INC}" "${INC_SYS}" "${LIB}")
-
-  # RNA_prototypes.h
-  add_dependencies(bf_blenkernel_tests bf_rna)
+  set(TEST_LIB
+    ${LIB}
+    bf_rna  # RNA_prototypes.h
+  )
+  blender_add_test_suite_lib(blenkernel "${TEST_SRC}" "${INC};${TEST_INC}" "${INC_SYS}" "${TEST_LIB}")
 endif()

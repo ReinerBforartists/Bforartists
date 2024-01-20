@@ -13,7 +13,10 @@ from bpy.props import (
     EnumProperty,
     StringProperty,
 )
-from bpy.app.translations import pgettext_tip as tip_
+from bpy.app.translations import (
+    pgettext_rpt as rpt_,
+    contexts as i18n_contexts,
+)
 
 
 class ANIM_OT_keying_set_export(Operator):
@@ -111,7 +114,7 @@ class ANIM_OT_keying_set_export(Operator):
                 if not found:
                     self.report(
                         {'WARN'},
-                        tip_("Could not find material or light using Shader Node Tree - %s") %
+                        rpt_("Could not find material or light using Shader Node Tree - %s") %
                         (ksp.id))
             elif ksp.id.bl_rna.identifier.startswith("CompositorNodeTree"):
                 # Find compositor node-tree using this node tree.
@@ -120,7 +123,7 @@ class ANIM_OT_keying_set_export(Operator):
                         id_bpy_path = "bpy.data.scenes[\"%s\"].node_tree" % (scene.name)
                         break
                 else:
-                    self.report({'WARN'}, tip_("Could not find scene using Compositor Node Tree - %s") % (ksp.id))
+                    self.report({'WARN'}, rpt_("Could not find scene using Compositor Node Tree - %s") % (ksp.id))
             elif ksp.id.bl_rna.name == "Key":
                 # "keys" conflicts with a Python keyword, hence the simple solution won't work
                 id_bpy_path = "bpy.data.shape_keys[\"%s\"]" % (ksp.id.name)
@@ -238,6 +241,7 @@ class NLA_OT_bake(Operator):
     )
     bake_types: EnumProperty(
         name="Bake Data",
+        translation_context=i18n_contexts.id_action,
         description="Which data's transformations to bake",
         options={'ENUM_FLAG'},
         items=(
@@ -255,8 +259,9 @@ class NLA_OT_bake(Operator):
             ('ROTATION', "Rotation", "Bake rotation channels"),
             ('SCALE', "Scale", "Bake scale channels"),
             ('BBONE', "B-Bone", "Bake B-Bone channels"),
+            ('PROPS', "Custom Properties", "Bake custom properties")
         ),
-        default={'LOCATION', 'ROTATION', 'SCALE', 'BBONE'},
+        default={'LOCATION', 'ROTATION', 'SCALE', 'BBONE', 'PROPS'},
     )
 
     def execute(self, context):
@@ -274,6 +279,7 @@ class NLA_OT_bake(Operator):
             do_rotation='ROTATION' in self.channel_types,
             do_scale='SCALE' in self.channel_types,
             do_bbone='BBONE' in self.channel_types,
+            do_custom_props='PROPS' in self.channel_types
         )
 
         if bake_options.do_pose and self.only_selected:
@@ -352,7 +358,7 @@ class ClearUselessActions(Operator):
                     action.user_clear()
                     removed += 1
 
-        self.report({'INFO'}, tip_("Removed %d empty and/or fake-user only Actions")
+        self.report({'INFO'}, rpt_("Removed %d empty and/or fake-user only Actions")
                     % removed)
         return {'FINISHED'}
 
@@ -437,7 +443,7 @@ class UpdateAnimatedTransformConstraint(Operator):
             print(log)
             text = bpy.data.texts.new("UpdateAnimatedTransformConstraint Report")
             text.from_string(log)
-            self.report({'INFO'}, tip_("Complete report available on '%s' text datablock") % text.name)
+            self.report({'INFO'}, rpt_("Complete report available on '%s' text datablock") % text.name)
         return {'FINISHED'}
 
 
@@ -519,9 +525,16 @@ class ARMATURE_OT_copy_bone_color_to_selected(Operator):
 
 
 class ARMATURE_OT_collection_solo_visibility(Operator):
-    """Hide all other bone collections and show the active one"""
+    """Hide all other bone collections and show the active one.
+
+    Note that it is necessary to also show the ancestors of the active bone
+    collection in order to ensure its visibility.
+    """
     bl_idname = "armature.collection_solo_visibility"
     bl_label = "Solo Visibility"
+    bl_description = "Hide all other bone collections and show the active one. " + \
+        "Note that it is necessary to also show the ancestors of the active " + \
+        "bone collection in order to ensure its visibility"
     bl_options = {'REGISTER', 'UNDO'}
 
     name: StringProperty(name='Bone Collection')
@@ -532,8 +545,29 @@ class ARMATURE_OT_collection_solo_visibility(Operator):
 
     def execute(self, context):
         arm = context.object.data
-        for bcoll in arm.collections:
-            bcoll.is_visible = bcoll.name == self.name
+
+        # Find the named bone collection.
+        if self.name:
+            try:
+                solo_bcoll = arm.collections[self.name]
+            except KeyError:
+                self.report({'ERROR'}, "Bone collection %r not found" % self.name)
+                return {'CANCELLED'}
+        else:
+            solo_bcoll = arm.collections.active
+            if not solo_bcoll:
+                self.report({'ERROR'}, "Armature has no active Bone collection, nothing to solo")
+                return {'CANCELLED'}
+
+        # Hide everything first.
+        for bcoll in arm.collections.all:
+            bcoll.is_visible = False
+
+        # Show the named bone collection and all its ancestors.
+        while solo_bcoll:
+            solo_bcoll.is_visible = True
+            solo_bcoll = solo_bcoll.parent
+
         return {'FINISHED'}
 
 
@@ -549,7 +583,7 @@ class ARMATURE_OT_collection_show_all(Operator):
 
     def execute(self, context):
         arm = context.object.data
-        for bcoll in arm.collections:
+        for bcoll in arm.collections.all:
             bcoll.is_visible = True
         return {'FINISHED'}
 

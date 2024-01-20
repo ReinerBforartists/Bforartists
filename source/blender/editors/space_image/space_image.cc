@@ -18,7 +18,7 @@
 #include "BLI_blenlib.h"
 #include "BLI_threads.h"
 
-#include "BKE_colortools.h"
+#include "BKE_colortools.hh"
 #include "BKE_context.hh"
 #include "BKE_image.h"
 #include "BKE_layer.h"
@@ -54,9 +54,9 @@
 
 #include "BLO_read_write.hh"
 
-#include "DRW_engine.h"
+#include "DRW_engine.hh"
 
-#include "image_intern.h"
+#include "image_intern.hh"
 
 /**************************** common state *****************************/
 
@@ -1012,7 +1012,8 @@ static void image_id_remap(ScrArea * /*area*/, SpaceLink *slink, const IDRemappe
   SpaceImage *simg = (SpaceImage *)slink;
 
   if (!BKE_id_remapper_has_mapping_for(mappings,
-                                       FILTER_ID_IM | FILTER_ID_GD_LEGACY | FILTER_ID_MSK)) {
+                                       FILTER_ID_IM | FILTER_ID_GD_LEGACY | FILTER_ID_MSK))
+  {
     return;
   }
 

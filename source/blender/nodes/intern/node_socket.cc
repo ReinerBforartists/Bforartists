@@ -371,9 +371,6 @@ static const char *get_current_socket_identifier_for_future_socket(
     const Span<const SocketDeclaration *> socket_decls)
 {
   switch (node.type) {
-    case GEO_NODE_SAMPLE_CURVE: {
-      return get_identifier_from_decl("Value", socket, socket_decls);
-    }
     case FN_NODE_RANDOM_VALUE: {
       return get_identifier_from_decl({"Min", "Max", "Value"}, socket, socket_decls);
     }
@@ -859,7 +856,7 @@ static bNodeSocketType *make_standard_socket_type(int type, int subtype)
   StructRNA *srna;
 
   stype = MEM_cnew<bNodeSocketType>("node socket C type");
-  stype->free_self = (void (*)(bNodeSocketType * stype)) MEM_freeN;
+  stype->free_self = (void (*)(bNodeSocketType *stype))MEM_freeN;
   STRNCPY(stype->idname, socket_idname);
   STRNCPY(stype->label, socket_label);
   STRNCPY(stype->subtype_label, socket_subtype_label);
@@ -903,7 +900,7 @@ static bNodeSocketType *make_socket_type_virtual()
   StructRNA *srna;
 
   stype = MEM_cnew<bNodeSocketType>("node socket C type");
-  stype->free_self = (void (*)(bNodeSocketType * stype)) MEM_freeN;
+  stype->free_self = (void (*)(bNodeSocketType *stype))MEM_freeN;
   STRNCPY(stype->idname, socket_idname);
 
   /* set the RNA type

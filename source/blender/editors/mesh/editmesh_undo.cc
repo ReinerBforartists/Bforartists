@@ -110,14 +110,17 @@ struct UndoMesh {
   int selectmode;
   char uv_selectmode;
 
-  /** \note
-   * This isn't a perfect solution, if you edit keys and change shapes this works well
-   * (fixing #32442), but editing shape keys, going into object mode, removing or changing their
-   * order, then go back into editmode and undo will give issues - where the old index will be
-   * out of sync with the new object index.
+  /**
+   * The active shape key associated with this mesh.
+   *
+   * NOTE(@ideasman42): This isn't a perfect solution, if you edit keys and change shapes this
+   * works well (fixing #32442), but editing shape keys, going into object mode, removing or
+   * changing their order, then go back into edit-mode and undo will give issues - where the old
+   * index will be out of sync with the new object index.
    *
    * There are a few ways this could be made to work but for now its a known limitation with mixing
-   * object and editmode operations - Campbell. */
+   * object and edit-mode operations.
+   */
   int shapenr;
 
 #ifdef USE_ARRAY_STORE
@@ -368,10 +371,10 @@ static void um_arraystore_compact_ex(UndoMesh *um, const UndoMesh *um_ref, bool 
    * Since this is itself a background thread, using too many threads here could
    * interfere with foreground tasks. */
   blender::threading::parallel_invoke(
-      4096 < (mesh->totvert + mesh->totedge + mesh->totloop + mesh->faces_num),
+      4096 < (mesh->verts_num + mesh->edges_num + mesh->corners_num + mesh->faces_num),
       [&]() {
         um_arraystore_cd_compact(&mesh->vert_data,
-                                 mesh->totvert,
+                                 mesh->verts_num,
                                  create,
                                  ARRAY_STORE_INDEX_VERT,
                                  um_ref ? um_ref->store.vdata : nullptr,
@@ -379,15 +382,15 @@ static void um_arraystore_compact_ex(UndoMesh *um, const UndoMesh *um_ref, bool 
       },
       [&]() {
         um_arraystore_cd_compact(&mesh->edge_data,
-                                 mesh->totedge,
+                                 mesh->edges_num,
                                  create,
                                  ARRAY_STORE_INDEX_EDGE,
                                  um_ref ? um_ref->store.edata : nullptr,
                                  &um->store.edata);
       },
       [&]() {
-        um_arraystore_cd_compact(&mesh->loop_data,
-                                 mesh->totloop,
+        um_arraystore_cd_compact(&mesh->corner_data,
+                                 mesh->corners_num,
                                  create,
                                  ARRAY_STORE_INDEX_LOOP,
                                  um_ref ? um_ref->store.ldata : nullptr,
@@ -563,9 +566,9 @@ static void um_arraystore_expand(UndoMesh *um)
 {
   Mesh *mesh = &um->mesh;
 
-  um_arraystore_cd_expand(um->store.vdata, &mesh->vert_data, mesh->totvert);
-  um_arraystore_cd_expand(um->store.edata, &mesh->edge_data, mesh->totedge);
-  um_arraystore_cd_expand(um->store.ldata, &mesh->loop_data, mesh->totloop);
+  um_arraystore_cd_expand(um->store.vdata, &mesh->vert_data, mesh->verts_num);
+  um_arraystore_cd_expand(um->store.edata, &mesh->edge_data, mesh->edges_num);
+  um_arraystore_cd_expand(um->store.ldata, &mesh->corner_data, mesh->corners_num);
   um_arraystore_cd_expand(um->store.pdata, &mesh->face_data, mesh->faces_num);
 
   if (um->store.keyblocks) {

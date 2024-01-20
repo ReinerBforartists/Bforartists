@@ -13,7 +13,7 @@
 #include "IMB_imbuf.h"
 #include "IMB_imbuf_types.h"
 
-#include "BKE_attribute.h"
+#include "BKE_attribute.hh"
 #include "BKE_customdata.hh"
 #include "BKE_global.h"
 #include "BKE_material.h"
@@ -27,7 +27,7 @@
 
 #include "NOD_shader.h"
 
-#include "DRW_engine.h"
+#include "DRW_engine.hh"
 
 #include "bmesh.hh"
 
@@ -102,18 +102,6 @@ void UI_GetThemeColorShadeAlpha4ubv(int /*colorid*/,
                                     uchar[4] /*col*/)
 {
   BLI_assert_unreachable();
-}
-
-/** \} */
-
-/* -------------------------------------------------------------------- */
-/** \name Stubs of BKE_attribute.h
- * \{ */
-
-extern "C" eAttrDomain BKE_id_attribute_domain(const struct ID * /*id*/,
-                                               const struct CustomDataLayer * /*layer*/)
-{
-  return ATTR_DOMAIN_AUTO;
 }
 
 /** \} */
@@ -214,9 +202,9 @@ extern "C" void ntreeFreeLocalTree(struct bNodeTree * /*ntree*/)
 /** \} */
 
 /* -------------------------------------------------------------------- */
-/** \name Stubs of DRW_engine.h
+/** \name Stubs of DRW_engine.hh
  * \{ */
-extern "C" void DRW_deferred_shader_remove(struct GPUMaterial * /*mat*/)
+extern void DRW_deferred_shader_remove(struct GPUMaterial * /*mat*/)
 {
   BLI_assert_unreachable();
 }

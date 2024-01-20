@@ -631,6 +631,12 @@ typedef struct bUserExtensionRepo {
   char _pad0[4];
 } bUserExtensionRepo;
 
+typedef enum eUserExtensionRepo_Flag {
+  /** Maintain disk cache. */
+  USER_EXTENSION_REPO_FLAG_NO_CACHE = 1 << 0,
+  USER_EXTENSION_REPO_FLAG_DISABLED = 1 << 1,
+} eUserExtensionRepo_Flag;
+
 typedef struct SolidLight {
   int flag;
   float smooth;
@@ -703,7 +709,6 @@ typedef struct UserDef_Experimental {
   char use_full_frame_compositor;
   char use_sculpt_tools_tilt;
   char use_extended_asset_browser;
-  char use_override_templates;
   char use_sculpt_texture_paint;
   char use_grease_pencil_version3;
   char enable_overlay_next;
@@ -711,7 +716,7 @@ typedef struct UserDef_Experimental {
   char use_shader_node_previews;
   char use_extension_repos;
 
-  char _pad[3];
+  char _pad[4];
   /** `makesdna` does not allow empty structs. */
 } UserDef_Experimental;
 
@@ -1322,7 +1327,7 @@ typedef enum eUserpref_Anim_Flags {
 typedef enum eUserpref_Translation_Flags {
   USER_TR_TOOLTIPS = (1 << 0),
   USER_TR_IFACE = (1 << 1),
-  USER_TR_UNUSED_2 = (1 << 2),            /* cleared */
+  USER_TR_REPORTS = (1 << 2),
   USER_TR_UNUSED_3 = (1 << 3),            /* cleared */
   USER_TR_UNUSED_4 = (1 << 4),            /* cleared */
   USER_DOTRANSLATE_DEPRECATED = (1 << 5), /* Deprecated in 2.83. */

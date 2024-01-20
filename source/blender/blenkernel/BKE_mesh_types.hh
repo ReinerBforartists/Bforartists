@@ -20,11 +20,9 @@
 #include "BLI_vector.hh"
 
 #include "DNA_customdata_types.h"
-#include "DNA_meshdata_types.h"
 
 struct BVHCache;
 struct Mesh;
-struct MLoopTri;
 struct ShrinkwrapBoundaryData;
 struct SubdivCCG;
 struct SubsurfRuntimeData;
@@ -86,13 +84,11 @@ struct LooseGeomCache {
 /**
  * Cache of a mesh's loose edges, accessed with #Mesh::loose_edges(). *
  */
-struct LooseEdgeCache : public LooseGeomCache {
-};
+struct LooseEdgeCache : public LooseGeomCache {};
 /**
  * Cache of a mesh's loose vertices or vertices not used by faces.
  */
-struct LooseVertCache : public LooseGeomCache {
-};
+struct LooseVertCache : public LooseGeomCache {};
 
 struct MeshRuntime {
   /* Evaluated mesh for objects which do not have effective modifiers.
@@ -125,10 +121,10 @@ struct MeshRuntime {
    */
   void *batch_cache = nullptr;
 
-  /** Cache for derived triangulation of the mesh, accessed with #Mesh::looptris(). */
-  SharedCache<Array<MLoopTri>> looptris_cache;
-  /** Cache for triangle to original face index map, accessed with #Mesh::looptri_faces(). */
-  SharedCache<Array<int>> looptri_faces_cache;
+  /** Cache for derived triangulation of the mesh, accessed with #Mesh::corner_tris(). */
+  SharedCache<Array<int3>> corner_tris_cache;
+  /** Cache for triangle to original face index map, accessed with #Mesh::corner_tri_faces(). */
+  SharedCache<Array<int>> corner_tri_faces_cache;
 
   /** Cache for BVH trees generated for the mesh. Defined in 'BKE_bvhutil.c' */
   BVHCache *bvh_cache = nullptr;

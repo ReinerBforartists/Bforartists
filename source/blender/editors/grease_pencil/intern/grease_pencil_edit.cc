@@ -13,13 +13,17 @@
 #include "BLI_math_vector_types.hh"
 #include "BLI_span.hh"
 #include "BLI_stack.hh"
+#include "BLT_translation.h"
 
 #include "DNA_material_types.h"
 
+#include "BKE_attribute.hh"
 #include "BKE_context.hh"
 #include "BKE_curves_utils.hh"
 #include "BKE_grease_pencil.hh"
+#include "BKE_lib_id.h"
 #include "BKE_material.h"
+#include "BKE_report.h"
 
 #include "RNA_access.hh"
 #include "RNA_define.hh"
@@ -30,6 +34,8 @@
 #include "ED_curves.hh"
 #include "ED_grease_pencil.hh"
 #include "ED_screen.hh"
+
+#include "GEO_subdivide_curves.hh"
 
 #include "WM_api.hh"
 
@@ -245,7 +251,8 @@ void gaussian_blur_1D(const GSpan src,
     using T = decltype(dummy);
     /* Reduces unnecessary code generation. */
     if constexpr (std::is_same_v<T, float> || std::is_same_v<T, float2> ||
-                  std::is_same_v<T, float3>) {
+                  std::is_same_v<T, float3>)
+    {
       gaussian_blur_1D(src.typed<T>(),
                        iterations,
                        influence,
@@ -329,7 +336,7 @@ static int grease_pencil_stroke_smooth_exec(bContext *C, wmOperator *op)
     const OffsetIndices points_by_curve = curves.points_by_curve();
     const VArray<bool> cyclic = curves.cyclic();
     const VArray<bool> point_selection = *curves.attributes().lookup_or_default<bool>(
-        ".selection", ATTR_DOMAIN_POINT, true);
+        ".selection", bke::AttrDomain::Point, true);
 
     if (smooth_position) {
       bke::GSpanAttributeWriter positions = attributes.lookup_for_write_span("position");
@@ -517,7 +524,7 @@ static int grease_pencil_stroke_simplify_exec(bContext *C, wmOperator *op)
     const VArray<bool> cyclic = curves.cyclic();
     const OffsetIndices<int> points_by_curve = curves.points_by_curve();
     const VArray<bool> selection = *curves.attributes().lookup_or_default<bool>(
-        ".selection", ATTR_DOMAIN_POINT, true);
+        ".selection", bke::AttrDomain::Point, true);
 
     /* Mark all points in the editable curves to be deleted. */
     Array<bool> points_to_delete(curves.points_num(), false);
@@ -547,7 +554,7 @@ static int grease_pencil_stroke_simplify_exec(bContext *C, wmOperator *op)
 
     if (total_points_to_delete > 0) {
       IndexMaskMemory memory;
-      curves.remove_points(IndexMask::from_bools(points_to_delete, memory));
+      curves.remove_points(IndexMask::from_bools(points_to_delete, memory), {});
       info.drawing.tag_topology_changed();
       changed = true;
     }
@@ -663,12 +670,14 @@ static bke::CurvesGeometry remove_points_and_split(const bke::CurvesGeometry &cu
 
   /* Transfer curve attributes. */
   gather_attributes(
-      src_attributes, ATTR_DOMAIN_CURVE, {}, {"cyclic"}, dst_to_src_curve, dst_attributes);
+      src_attributes, bke::AttrDomain::Curve, {}, {"cyclic"}, dst_to_src_curve, dst_attributes);
   array_utils::copy(dst_cyclic.as_span(), dst_curves.cyclic_for_write());
 
   /* Transfer point attributes. */
-  gather_attributes(src_attributes, ATTR_DOMAIN_POINT, {}, {}, dst_to_src_point, dst_attributes);
+  gather_attributes(
+      src_attributes, bke::AttrDomain::Point, {}, {}, dst_to_src_point, dst_attributes);
 
+  dst_curves.update_curve_types();
   dst_curves.remove_attributes_based_on_types();
 
   return dst_curves;
@@ -680,7 +689,8 @@ static int grease_pencil_delete_exec(bContext *C, wmOperator * /*op*/)
   Object *object = CTX_data_active_object(C);
   GreasePencil &grease_pencil = *static_cast<GreasePencil *>(object->data);
 
-  const eAttrDomain selection_domain = ED_grease_pencil_selection_domain_get(scene->toolsettings);
+  const bke::AttrDomain selection_domain = ED_grease_pencil_selection_domain_get(
+      scene->toolsettings);
 
   bool changed = false;
   const Array<MutableDrawingInfo> drawings = retrieve_editable_drawings(*scene, grease_pencil);
@@ -693,10 +703,10 @@ static int grease_pencil_delete_exec(bContext *C, wmOperator * /*op*/)
     }
 
     bke::CurvesGeometry &curves = info.drawing.strokes_for_write();
-    if (selection_domain == ATTR_DOMAIN_CURVE) {
-      curves.remove_curves(elements);
+    if (selection_domain == bke::AttrDomain::Curve) {
+      curves.remove_curves(elements, {});
     }
-    else if (selection_domain == ATTR_DOMAIN_POINT) {
+    else if (selection_domain == bke::AttrDomain::Point) {
       curves = remove_points_and_split(curves, elements);
     }
     info.drawing.tag_topology_changed();
@@ -760,7 +770,7 @@ static Array<bool> get_points_to_dissolve(bke::CurvesGeometry &curves,
                                           const DissolveMode mode)
 {
   const VArray<bool> selection = *curves.attributes().lookup_or_default<bool>(
-      ".selection", ATTR_DOMAIN_POINT, true);
+      ".selection", bke::AttrDomain::Point, true);
 
   Array<bool> points_to_dissolve(curves.points_num(), false);
   selection.materialize(mask, points_to_dissolve);
@@ -842,7 +852,7 @@ static int grease_pencil_dissolve_exec(bContext *C, wmOperator *op)
 
     const Array<bool> points_to_dissolve = get_points_to_dissolve(curves, points, mode);
     if (points_to_dissolve.as_span().contains(true)) {
-      curves.remove_points(IndexMask::from_bools(points_to_dissolve, memory));
+      curves.remove_points(IndexMask::from_bools(points_to_dissolve, memory), {});
       info.drawing.tag_topology_changed();
       changed = true;
     }
@@ -919,7 +929,7 @@ static int grease_pencil_delete_frame_exec(bContext *C, wmOperator *op)
 
   bool changed = false;
   if (mode == DeleteFrameMode::ACTIVE_FRAME && grease_pencil.has_active_layer()) {
-    bke::greasepencil::Layer &layer = *grease_pencil.get_active_layer_for_write();
+    bke::greasepencil::Layer &layer = *grease_pencil.get_active_layer();
     if (layer.is_editable()) {
       changed |= grease_pencil.remove_frames(layer, {layer.frame_key_at(current_frame)});
     }
@@ -971,12 +981,29 @@ static void GREASE_PENCIL_OT_delete_frame(wmOperatorType *ot)
 /** \name Stroke Material Set Operator
  * \{ */
 
-static int grease_pencil_stroke_material_set_exec(bContext *C, wmOperator * /*op*/)
+static int grease_pencil_stroke_material_set_exec(bContext *C, wmOperator *op)
 {
+  using namespace blender;
+  Main *bmain = CTX_data_main(C);
   const Scene *scene = CTX_data_scene(C);
   Object *object = CTX_data_active_object(C);
   GreasePencil &grease_pencil = *static_cast<GreasePencil *>(object->data);
-  const int material_index = object->actcol - 1;
+  Material *ma = nullptr;
+  char name[MAX_ID_NAME - 2];
+  RNA_string_get(op->ptr, "material", name);
+
+  int material_index = object->actcol - 1;
+
+  if (name[0] != '\0') {
+    ma = reinterpret_cast<Material *>(BKE_libblock_find_name(bmain, ID_MA, name));
+    if (ma == nullptr) {
+      BKE_reportf(op->reports, RPT_WARNING, TIP_("Material '%s' could not be found"), name);
+      return OPERATOR_CANCELLED;
+    }
+
+    /* Find slot index. */
+    material_index = BKE_object_material_index_get(object, ma);
+  }
 
   if (material_index == -1) {
     return OPERATOR_CANCELLED;
@@ -994,7 +1021,7 @@ static int grease_pencil_stroke_material_set_exec(bContext *C, wmOperator * /*op
     bke::CurvesGeometry &curves = info.drawing.strokes_for_write();
     bke::SpanAttributeWriter<int> materials =
         curves.attributes_for_write().lookup_or_add_for_write_span<int>("material_index",
-                                                                        ATTR_DOMAIN_CURVE);
+                                                                        bke::AttrDomain::Curve);
     index_mask::masked_fill(materials.span, material_index, strokes);
     materials.finish();
   });
@@ -1015,6 +1042,10 @@ static void GREASE_PENCIL_OT_stroke_material_set(wmOperatorType *ot)
   ot->poll = editable_grease_pencil_poll;
 
   ot->flag = OPTYPE_REGISTER | OPTYPE_UNDO;
+
+  ot->prop = RNA_def_string(
+      ot->srna, "material", nullptr, MAX_ID_NAME - 2, "Material", "Name of the material");
+  RNA_def_property_flag(ot->prop, PROP_SKIP_SAVE);
 }
 /** \} */
 
@@ -1139,7 +1170,7 @@ static int grease_pencil_set_active_material_exec(bContext *C, wmOperator * /*op
     bke::CurvesGeometry &curves = info.drawing.strokes_for_write();
 
     const VArray<int> materials = *curves.attributes().lookup_or_default<int>(
-        "material_index", ATTR_DOMAIN_CURVE, 0);
+        "material_index", bke::AttrDomain::Curve, 0);
     object->actcol = materials[strokes.first()] + 1;
     break;
   };
@@ -1378,9 +1409,9 @@ static int grease_pencil_caps_set_exec(bContext *C, wmOperator *op)
 
     if (ELEM(mode, CapsMode::ROUND, CapsMode::FLAT)) {
       bke::SpanAttributeWriter<int8_t> start_caps =
-          attributes.lookup_or_add_for_write_span<int8_t>("start_cap", ATTR_DOMAIN_CURVE);
+          attributes.lookup_or_add_for_write_span<int8_t>("start_cap", bke::AttrDomain::Curve);
       bke::SpanAttributeWriter<int8_t> end_caps = attributes.lookup_or_add_for_write_span<int8_t>(
-          "end_cap", ATTR_DOMAIN_CURVE);
+          "end_cap", bke::AttrDomain::Curve);
 
       const int8_t flag_set = (mode == CapsMode::ROUND) ? int8_t(GP_STROKE_CAP_TYPE_ROUND) :
                                                           int8_t(GP_STROKE_CAP_TYPE_FLAT);
@@ -1394,14 +1425,14 @@ static int grease_pencil_caps_set_exec(bContext *C, wmOperator *op)
       switch (mode) {
         case CapsMode::START: {
           bke::SpanAttributeWriter<int8_t> caps = attributes.lookup_or_add_for_write_span<int8_t>(
-              "start_cap", ATTR_DOMAIN_CURVE);
+              "start_cap", bke::AttrDomain::Curve);
           toggle_caps(caps.span, strokes);
           caps.finish();
           break;
         }
         case CapsMode::END: {
           bke::SpanAttributeWriter<int8_t> caps = attributes.lookup_or_add_for_write_span<int8_t>(
-              "end_cap", ATTR_DOMAIN_CURVE);
+              "end_cap", bke::AttrDomain::Curve);
           toggle_caps(caps.span, strokes);
           caps.finish();
           break;
@@ -1536,7 +1567,8 @@ static int grease_pencil_duplicate_exec(bContext *C, wmOperator * /*op*/)
   Object *object = CTX_data_active_object(C);
   GreasePencil &grease_pencil = *static_cast<GreasePencil *>(object->data);
 
-  const eAttrDomain selection_domain = ED_grease_pencil_selection_domain_get(scene->toolsettings);
+  const bke::AttrDomain selection_domain = ED_grease_pencil_selection_domain_get(
+      scene->toolsettings);
 
   std::atomic<bool> changed = false;
   const Array<MutableDrawingInfo> drawings = retrieve_editable_drawings(*scene, grease_pencil);
@@ -1549,10 +1581,10 @@ static int grease_pencil_duplicate_exec(bContext *C, wmOperator * /*op*/)
     }
 
     bke::CurvesGeometry &curves = info.drawing.strokes_for_write();
-    if (selection_domain == ATTR_DOMAIN_CURVE) {
+    if (selection_domain == bke::AttrDomain::Curve) {
       curves::duplicate_curves(curves, elements);
     }
-    else if (selection_domain == ATTR_DOMAIN_POINT) {
+    else if (selection_domain == bke::AttrDomain::Point) {
       curves::duplicate_points(curves, elements);
     }
     info.drawing.tag_topology_changed();
@@ -1602,7 +1634,7 @@ static int grease_pencil_clean_loose_exec(bContext *C, wmOperator *op)
           return points_by_curve[i].size() <= limit;
         });
 
-    curves.remove_curves(curves_to_delete);
+    curves.remove_curves(curves_to_delete, {});
   });
 
   DEG_id_tag_update(&grease_pencil.id, ID_RECALC_GEOMETRY);
@@ -1636,6 +1668,136 @@ static void GREASE_PENCIL_OT_clean_loose(wmOperatorType *ot)
 
 /** \} */
 
+/* -------------------------------------------------------------------- */
+/** \name Stroke Subdivide Operator
+ * \{ */
+
+static int gpencil_stroke_subdivide_exec(bContext *C, wmOperator *op)
+{
+  const int cuts = RNA_int_get(op->ptr, "number_cuts");
+  const bool only_selected = RNA_boolean_get(op->ptr, "only_selected");
+
+  std::atomic<bool> changed = false;
+
+  const Scene *scene = CTX_data_scene(C);
+  Object *object = CTX_data_active_object(C);
+  GreasePencil &grease_pencil = *static_cast<GreasePencil *>(object->data);
+  const bke::AttrDomain selection_domain = ED_grease_pencil_selection_domain_get(
+      scene->toolsettings);
+
+  const Array<MutableDrawingInfo> drawings = retrieve_editable_drawings(*scene, grease_pencil);
+
+  threading::parallel_for_each(drawings, [&](const MutableDrawingInfo &info) {
+    IndexMaskMemory memory;
+    const IndexMask strokes = ed::greasepencil::retrieve_editable_and_selected_strokes(
+        *object, info.drawing, memory);
+    if (strokes.is_empty()) {
+      return;
+    }
+    bke::CurvesGeometry &curves = info.drawing.strokes_for_write();
+
+    VArray<int> vcuts = {};
+
+    if (selection_domain == bke::AttrDomain::Curve || !only_selected) {
+      /* Subdivide entire selected curve, every stroke subdivides to the same cut. */
+      vcuts = VArray<int>::ForSingle(cuts, curves.points_num());
+    }
+    else if (selection_domain == bke::AttrDomain::Point) {
+      /* Subdivide between selected points. Only cut between selected points.
+       * Make the cut array the same length as point count for specifying
+       * cut/uncut for each segment. */
+      const VArray<bool> selection = *curves.attributes().lookup_or_default<bool>(
+          ".selection", bke::AttrDomain::Point, true);
+
+      const OffsetIndices points_by_curve = curves.points_by_curve();
+      const VArray<bool> cyclic = curves.cyclic();
+
+      Array<int> use_cuts(curves.points_num(), 0);
+
+      /* The cut is after each point, so the last point selected wouldn't need to be registered. */
+      for (const int curve : curves.curves_range()) {
+        /* No need to loop to the last point since the cut is registered on the point before the
+         * segment. */
+        for (const int point : points_by_curve[curve].drop_back(1)) {
+          /* The point itself should be selected. */
+          if (!selection[point]) {
+            continue;
+          }
+          /* If the next point in the curve is selected, then cut this segment. */
+          if (selection[point + 1]) {
+            use_cuts[point] = cuts;
+          }
+        }
+        /* Check for cyclic and selection. */
+        if (cyclic[curve]) {
+          const int first_point = points_by_curve[curve].first();
+          const int last_point = points_by_curve[curve].last();
+          if (selection[first_point] && selection[last_point]) {
+            use_cuts[last_point] = cuts;
+          }
+        }
+      }
+      vcuts = VArray<int>::ForContainer(std::move(use_cuts));
+    }
+
+    curves = geometry::subdivide_curves(curves, strokes, vcuts, {});
+    info.drawing.tag_topology_changed();
+    changed.store(true, std::memory_order_relaxed);
+  });
+
+  if (changed) {
+    DEG_id_tag_update(&grease_pencil.id, ID_RECALC_GEOMETRY);
+    WM_event_add_notifier(C, NC_GPENCIL | ND_DATA | NA_EDITED, nullptr);
+  }
+
+  return OPERATOR_FINISHED;
+}
+
+static void GREASE_PENCIL_OT_stroke_subdivide(wmOperatorType *ot)
+{
+  PropertyRNA *prop;
+
+  /* identifiers */
+  ot->name = "Subdivide Stroke";
+  ot->idname = "GREASE_PENCIL_OT_stroke_subdivide";
+  ot->description =
+      "Subdivide between continuous selected points of the stroke adding a point half way "
+      "between "
+      "them";
+
+  /* API callbacks. */
+  ot->exec = gpencil_stroke_subdivide_exec;
+  ot->poll = ed::greasepencil::editable_grease_pencil_poll;
+
+  /* Flags. */
+  ot->flag = OPTYPE_REGISTER | OPTYPE_UNDO;
+
+  /* Properties. */
+  prop = RNA_def_int(ot->srna, "number_cuts", 1, 1, 32, "Number of Cuts", "", 1, 5);
+  /* Avoid re-using last var because it can cause _very_ high value and annoy users. */
+  RNA_def_property_flag(prop, PROP_SKIP_SAVE);
+
+  RNA_def_boolean(ot->srna,
+                  "only_selected",
+                  true,
+                  "Selected Points",
+                  "Smooth only selected points in the stroke");
+}
+
+/** \} */
+
+static void grease_pencil_operatormarcos_define()
+{
+  wmOperatorType *ot;
+
+  ot = WM_operatortype_append_macro("GREASE_PENCIL_OT_stroke_subdivide_smooth",
+                                    "Subdivide and Smooth",
+                                    "Subdivide strokes and smooth them",
+                                    OPTYPE_UNDO | OPTYPE_REGISTER);
+  WM_operatortype_macro_define(ot, "GREASE_PENCIL_OT_stroke_subdivide");
+  WM_operatortype_macro_define(ot, "GREASE_PENCIL_OT_stroke_smooth");
+}
+
 }  // namespace blender::ed::greasepencil
 
 void ED_operatortypes_grease_pencil_edit()
@@ -1656,6 +1818,9 @@ void ED_operatortypes_grease_pencil_edit()
   WM_operatortype_append(GREASE_PENCIL_OT_duplicate);
   WM_operatortype_append(GREASE_PENCIL_OT_set_material);
   WM_operatortype_append(GREASE_PENCIL_OT_clean_loose);
+  WM_operatortype_append(GREASE_PENCIL_OT_stroke_subdivide);
+
+  grease_pencil_operatormarcos_define();
 }
 
 void ED_keymap_grease_pencil(wmKeyConfig *keyconf)

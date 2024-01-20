@@ -319,12 +319,12 @@ static bool node_poll_cryptomatte(const bNodeType * /*ntype*/,
     }
 
     if (scene == nullptr) {
-      *r_disabled_hint = TIP_(
+      *r_disabled_hint = RPT_(
           "The node tree must be the compositing node tree of any scene in the file");
     }
     return scene != nullptr;
   }
-  *r_disabled_hint = TIP_("Not a compositor node tree");
+  *r_disabled_hint = RPT_("Not a compositor node tree");
   return false;
 }
 
@@ -456,7 +456,7 @@ class CryptoMatteOperation : public NodeOperation {
     return output_matte;
   }
 
-  /* Computes the output image result by premultiplying the matte to the image. */
+  /* Computes the output image result by pre-multiplying the matte to the image. */
   void compute_image(Result &matte)
   {
     GPUShader *shader = context().get_shader("compositor_cryptomatte_image");
@@ -528,7 +528,8 @@ class CryptoMatteOperation : public NodeOperation {
          * unnamed, that is, in the case of mono rendering, in which case we just return the first
          * view. */
         if (!context().get_view_name().is_empty() &&
-            context().get_view_name() != render_pass->view) {
+            context().get_view_name() != render_pass->view)
+        {
           continue;
         }
 

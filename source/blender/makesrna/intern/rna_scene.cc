@@ -725,7 +725,6 @@ const EnumPropertyItem rna_enum_grease_pencil_selectmode_items[] = {
 #  include "BKE_bake_geometry_nodes_modifier.hh"
 #  include "BKE_brush.hh"
 #  include "BKE_collection.h"
-#  include "BKE_colortools.h"
 #  include "BKE_context.hh"
 #  include "BKE_freestyle.h"
 #  include "BKE_global.h"
@@ -2575,6 +2574,25 @@ static void rna_ViewLayer_remove(
   if (ED_scene_view_layer_delete(bmain, scene, view_layer, reports)) {
     RNA_POINTER_INVALIDATE(sl_ptr);
   }
+}
+
+static void rna_ViewLayer_move(
+    ID *id, Scene * /*sce*/, Main *bmain, ReportList *reports, int from, int to)
+{
+  if (from == to) {
+    return;
+  }
+
+  Scene *scene = (Scene *)id;
+
+  if (!BLI_listbase_move_index(&scene->view_layers, from, to)) {
+    BKE_reportf(reports, RPT_ERROR, "Could not move layer from index '%d' to '%d'", from, to);
+    return;
+  }
+
+  DEG_id_tag_update(&scene->id, ID_RECALC_BASE_FLAGS);
+  DEG_relations_tag_update(bmain);
+  WM_main_add_notifier(NC_SCENE | ND_LAYER, nullptr);
 }
 
 void rna_ViewLayer_active_aov_index_range(
@@ -5739,6 +5757,15 @@ static void rna_def_view_layers(BlenderRNA *brna, PropertyRNA *cprop)
   parm = RNA_def_pointer(func, "layer", "ViewLayer", "", "View layer to remove");
   RNA_def_parameter_flags(parm, PROP_NEVER_NULL, PARM_REQUIRED | PARM_RNAPTR);
   RNA_def_parameter_clear_flags(parm, PROP_THICK_WRAP, ParameterFlag(0));
+
+  func = RNA_def_function(srna, "move", "rna_ViewLayer_move");
+  RNA_def_function_ui_description(func, "Move a view layer");
+  RNA_def_function_flag(func, FUNC_USE_SELF_ID | FUNC_USE_MAIN | FUNC_USE_REPORTS);
+  parm = RNA_def_int(
+      func, "from_index", -1, INT_MIN, INT_MAX, "From Index", "Index to move", 0, 10000);
+  RNA_def_parameter_flags(parm, PropertyFlag(0), PARM_REQUIRED);
+  parm = RNA_def_int(func, "to_index", -1, INT_MIN, INT_MAX, "To Index", "Target index", 0, 10000);
+  RNA_def_parameter_flags(parm, PropertyFlag(0), PARM_REQUIRED);
 }
 
 /* Render Views - MultiView */
@@ -8225,6 +8252,13 @@ static void rna_def_scene_eevee(BlenderRNA *brna)
   RNA_def_property_struct_type(prop, "RaytraceEEVEE");
   RNA_def_property_ui_text(
       prop, "Reflection Trace Options", "EEVEE settings for tracing reflections");
+
+  prop = RNA_def_property(srna, "use_raytracing", PROP_BOOLEAN, PROP_NONE);
+  /* Reuse the same property as legacy EEVEE for compatibility. */
+  RNA_def_property_boolean_sdna(prop, nullptr, "flag", SCE_EEVEE_SSR_ENABLED);
+  RNA_def_property_ui_text(prop, "Use Ray-Tracing", "Enable the ray-tracing module");
+  RNA_def_property_override_flag(prop, PROPOVERRIDE_OVERRIDABLE_LIBRARY);
+  RNA_def_property_update(prop, NC_SCENE | ND_RENDER_OPTIONS, nullptr);
 }
 
 static void rna_def_scene_gpencil(BlenderRNA *brna)

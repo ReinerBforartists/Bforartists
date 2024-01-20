@@ -243,17 +243,17 @@ static const std::string ATTR_OPACITY = "opacity";
 static const std::string ATTR_VERTEX_COLOR = "vertex_color";
 
 /* Curves attributes getters */
-static int domain_num(const CurvesGeometry &curves, const eAttrDomain domain)
+static int domain_num(const CurvesGeometry &curves, const AttrDomain domain)
 {
-  return domain == ATTR_DOMAIN_POINT ? curves.points_num() : curves.curves_num();
+  return domain == AttrDomain::Point ? curves.points_num() : curves.curves_num();
 }
-static CustomData &domain_custom_data(CurvesGeometry &curves, const eAttrDomain domain)
+static CustomData &domain_custom_data(CurvesGeometry &curves, const AttrDomain domain)
 {
-  return domain == ATTR_DOMAIN_POINT ? curves.point_data : curves.curve_data;
+  return domain == AttrDomain::Point ? curves.point_data : curves.curve_data;
 }
 template<typename T>
 static MutableSpan<T> get_mutable_attribute(CurvesGeometry &curves,
-                                            const eAttrDomain domain,
+                                            const AttrDomain domain,
                                             const StringRefNull name,
                                             const T default_value = T())
 {
@@ -370,37 +370,37 @@ bke::CurvesGeometry &Drawing::strokes_for_write()
 VArray<float> Drawing::radii() const
 {
   return *this->strokes().attributes().lookup_or_default<float>(
-      ATTR_RADIUS, ATTR_DOMAIN_POINT, 0.01f);
+      ATTR_RADIUS, AttrDomain::Point, 0.01f);
 }
 
 MutableSpan<float> Drawing::radii_for_write()
 {
   return get_mutable_attribute<float>(
-      this->strokes_for_write(), ATTR_DOMAIN_POINT, ATTR_RADIUS, 0.01f);
+      this->strokes_for_write(), AttrDomain::Point, ATTR_RADIUS, 0.01f);
 }
 
 VArray<float> Drawing::opacities() const
 {
   return *this->strokes().attributes().lookup_or_default<float>(
-      ATTR_OPACITY, ATTR_DOMAIN_POINT, 1.0f);
+      ATTR_OPACITY, AttrDomain::Point, 1.0f);
 }
 
 MutableSpan<float> Drawing::opacities_for_write()
 {
   return get_mutable_attribute<float>(
-      this->strokes_for_write(), ATTR_DOMAIN_POINT, ATTR_OPACITY, 1.0f);
+      this->strokes_for_write(), AttrDomain::Point, ATTR_OPACITY, 1.0f);
 }
 
 VArray<ColorGeometry4f> Drawing::vertex_colors() const
 {
   return *this->strokes().attributes().lookup_or_default<ColorGeometry4f>(
-      ATTR_VERTEX_COLOR, ATTR_DOMAIN_POINT, ColorGeometry4f(0.0f, 0.0f, 0.0f, 0.0f));
+      ATTR_VERTEX_COLOR, AttrDomain::Point, ColorGeometry4f(0.0f, 0.0f, 0.0f, 0.0f));
 }
 
 MutableSpan<ColorGeometry4f> Drawing::vertex_colors_for_write()
 {
   return get_mutable_attribute<ColorGeometry4f>(this->strokes_for_write(),
-                                                ATTR_DOMAIN_POINT,
+                                                AttrDomain::Point,
                                                 ATTR_VERTEX_COLOR,
                                                 ColorGeometry4f(0.0f, 0.0f, 0.0f, 0.0f));
 }
@@ -806,6 +806,11 @@ int Layer::drawing_index_at(const int frame_number) const
 {
   const GreasePencilFrame *frame = frame_at(frame_number);
   return (frame != nullptr) ? frame->drawing_index : -1;
+}
+
+bool Layer::has_drawing_at(const int frame_number) const
+{
+  return frame_at(frame_number) != nullptr;
 }
 
 int Layer::get_frame_duration_at(const int frame_number) const
@@ -1218,19 +1223,6 @@ void BKE_grease_pencil_duplicate_drawing_array(const GreasePencil *grease_pencil
 /** \name Grease Pencil material functions
  * \{ */
 
-int BKE_grease_pencil_object_material_index_get(Object *ob, Material *ma)
-{
-  short *totcol = BKE_object_material_len_p(ob);
-  Material *read_ma = nullptr;
-  for (short i = 0; i < *totcol; i++) {
-    read_ma = BKE_object_material_get(ob, i + 1);
-    if (ma == read_ma) {
-      return i;
-    }
-  }
-  return -1;
-}
-
 int BKE_grease_pencil_object_material_index_get_by_name(Object *ob, const char *name)
 {
   short *totcol = BKE_object_material_len_p(ob);
@@ -1306,7 +1298,7 @@ Material *BKE_grease_pencil_object_material_ensure_from_brush(Main *bmain,
     Material *ma = BKE_grease_pencil_brush_material_get(brush);
 
     /* check if the material is already on object material slots and add it if missing */
-    if (ma && BKE_grease_pencil_object_material_index_get(ob, ma) < 0) {
+    if (ma && BKE_object_material_index_get(ob, ma) < 0) {
       BKE_object_material_slot_add(bmain, ob);
       BKE_object_material_assign(bmain, ob, ma, ob->totcol, BKE_MAT_ASSIGN_USERPREF);
     }
@@ -1363,7 +1355,7 @@ void BKE_grease_pencil_material_remap(GreasePencil *grease_pencil, const uint *r
     greasepencil::Drawing &drawing = reinterpret_cast<GreasePencilDrawing *>(base)->wrap();
     MutableAttributeAccessor attributes = drawing.strokes_for_write().attributes_for_write();
     SpanAttributeWriter<int> material_indices = attributes.lookup_or_add_for_write_span<int>(
-        "material_index", ATTR_DOMAIN_CURVE);
+        "material_index", AttrDomain::Curve);
     if (!material_indices) {
       return;
     }
@@ -1416,7 +1408,7 @@ bool BKE_grease_pencil_material_index_used(GreasePencil *grease_pencil, int inde
     greasepencil::Drawing &drawing = reinterpret_cast<GreasePencilDrawing *>(base)->wrap();
     AttributeAccessor attributes = drawing.strokes().attributes();
     const VArraySpan<int> material_indices = *attributes.lookup_or_default<int>(
-        "material_index", ATTR_DOMAIN_CURVE, 0);
+        "material_index", AttrDomain::Curve, 0);
 
     if (material_indices.contains(index)) {
       return true;
@@ -1820,12 +1812,9 @@ void GreasePencil::move_duplicate_frames(
 }
 
 const blender::bke::greasepencil::Drawing *GreasePencil::get_drawing_at(
-    const blender::bke::greasepencil::Layer *layer, const int frame_number) const
+    const blender::bke::greasepencil::Layer &layer, const int frame_number) const
 {
-  if (layer == nullptr) {
-    return nullptr;
-  }
-  const int drawing_index = layer->drawing_index_at(frame_number);
+  const int drawing_index = layer.drawing_index_at(frame_number);
   if (drawing_index == -1) {
     /* No drawing found. */
     return nullptr;
@@ -1840,13 +1829,13 @@ const blender::bke::greasepencil::Drawing *GreasePencil::get_drawing_at(
 }
 
 blender::bke::greasepencil::Drawing *GreasePencil::get_editable_drawing_at(
-    const blender::bke::greasepencil::Layer *layer, const int frame_number)
+    const blender::bke::greasepencil::Layer &layer, const int frame_number)
 {
-  if (layer == nullptr || !layer->is_editable()) {
+  if (!layer.is_editable()) {
     return nullptr;
   }
 
-  const int drawing_index = layer->drawing_index_at(frame_number);
+  const int drawing_index = layer.drawing_index_at(frame_number);
   if (drawing_index == -1) {
     /* No drawing found. */
     return nullptr;
@@ -1866,8 +1855,8 @@ std::optional<blender::Bounds<blender::float3>> GreasePencil::bounds_min_max(con
   std::optional<Bounds<float3>> bounds;
   const Span<const bke::greasepencil::Layer *> layers = this->layers();
   for (const int layer_i : layers.index_range()) {
-    const bke::greasepencil::Layer *layer = layers[layer_i];
-    if (!layer->is_visible()) {
+    const bke::greasepencil::Layer &layer = *layers[layer_i];
+    if (!layer.is_visible()) {
       continue;
     }
     if (const bke::greasepencil::Drawing *drawing = this->get_drawing_at(layer, frame)) {
@@ -1927,7 +1916,7 @@ const blender::bke::greasepencil::Layer *GreasePencil::get_active_layer() const
   return &this->active_layer->wrap();
 }
 
-blender::bke::greasepencil::Layer *GreasePencil::get_active_layer_for_write()
+blender::bke::greasepencil::Layer *GreasePencil::get_active_layer()
 {
   if (this->active_layer == nullptr) {
     return nullptr;

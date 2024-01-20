@@ -10,8 +10,9 @@
 #include "BLI_math_geom.h"
 #include "BLI_task.hh"
 
+#include "BKE_attribute.hh"
 #include "BKE_brush.hh"
-#include "BKE_colortools.h"
+#include "BKE_colortools.hh"
 #include "BKE_context.hh"
 #include "BKE_crazyspace.hh"
 #include "BKE_curves.hh"
@@ -533,7 +534,7 @@ struct EraseOperationExecutor {
 
     /* Copy curves attributes. */
     bke::gather_attributes(src_attributes,
-                           ATTR_DOMAIN_CURVE,
+                           bke::AttrDomain::Curve,
                            propagation_info,
                            {"cyclic"},
                            dst_to_src_curve,
@@ -548,9 +549,9 @@ struct EraseOperationExecutor {
     /* Display intersections with flat caps. */
     if (!keep_caps) {
       bke::SpanAttributeWriter<int8_t> dst_start_caps =
-          dst_attributes.lookup_or_add_for_write_span<int8_t>("start_cap", ATTR_DOMAIN_CURVE);
+          dst_attributes.lookup_or_add_for_write_span<int8_t>("start_cap", bke::AttrDomain::Curve);
       bke::SpanAttributeWriter<int8_t> dst_end_caps =
-          dst_attributes.lookup_or_add_for_write_span<int8_t>("end_cap", ATTR_DOMAIN_CURVE);
+          dst_attributes.lookup_or_add_for_write_span<int8_t>("end_cap", bke::AttrDomain::Curve);
 
       threading::parallel_for(dst.curves_range(), 4096, [&](const IndexRange dst_curves) {
         for (const int dst_curve : dst_curves) {
@@ -805,7 +806,7 @@ struct EraseOperationExecutor {
 
     if (self.active_layer_only) {
       /* Erase only on the drawing at the current frame of the active layer. */
-      const Layer *active_layer = grease_pencil.get_active_layer();
+      const Layer &active_layer = *grease_pencil.get_active_layer();
       Drawing *drawing = grease_pencil.get_editable_drawing_at(active_layer, scene->r.cfra);
 
       if (drawing == nullptr) {
@@ -813,7 +814,7 @@ struct EraseOperationExecutor {
       }
 
       execute_eraser_on_drawing(
-          active_layer->drawing_index_at(scene->r.cfra), scene->r.cfra, *drawing);
+          active_layer.drawing_index_at(scene->r.cfra), scene->r.cfra, *drawing);
     }
     else {
       /* Erase on all editable drawings. */

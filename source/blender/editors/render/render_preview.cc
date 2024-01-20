@@ -46,7 +46,7 @@
 #include "BKE_appdir.h"
 #include "BKE_armature.hh"
 #include "BKE_brush.hh"
-#include "BKE_colortools.h"
+#include "BKE_colortools.hh"
 #include "BKE_context.hh"
 #include "BKE_global.h"
 #include "BKE_icons.h"
@@ -427,7 +427,8 @@ static const char *preview_world_name(const Scene *sce,
    * this approximation.
    */
   if (id_type == ID_MA && pr_method == PR_ICON_RENDER &&
-      !render_engine_supports_ray_visibility(sce)) {
+      !render_engine_supports_ray_visibility(sce))
+  {
     return "WorldFloor";
   }
   return "World";
@@ -890,6 +891,7 @@ static void object_preview_render(IconPreview *preview, IconPreviewSize *preview
       R_ALPHAPREMUL,
       nullptr,
       nullptr,
+      nullptr,
       err_out);
   /* TODO: color-management? */
 
@@ -1023,6 +1025,7 @@ static void action_preview_render(IconPreview *preview, IconPreviewSize *preview
                                                       IB_rect,
                                                       V3D_OFSDRAW_NONE,
                                                       R_ADDSKY,
+                                                      nullptr,
                                                       nullptr,
                                                       nullptr,
                                                       err_out);
@@ -1449,7 +1452,8 @@ static void icon_preview_startjob(void *customdata, bool *stop, bool *do_update)
      * only get existing `ibuf`. */
     ibuf = BKE_image_acquire_ibuf(ima, &iuser, nullptr);
     if (ibuf == nullptr ||
-        (ibuf->byte_buffer.data == nullptr && ibuf->float_buffer.data == nullptr)) {
+        (ibuf->byte_buffer.data == nullptr && ibuf->float_buffer.data == nullptr))
+    {
       BKE_image_release_ibuf(ima, ibuf, nullptr);
       return;
     }

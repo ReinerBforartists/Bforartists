@@ -30,7 +30,6 @@
 #include "DNA_lattice_types.h"
 #include "DNA_material_types.h"
 #include "DNA_mesh_types.h"
-#include "DNA_meshdata_types.h"
 #include "DNA_meta_types.h"
 #include "DNA_object_force_types.h"
 #include "DNA_object_types.h"
@@ -101,7 +100,7 @@
 
 #include "WM_api.hh"
 #include "WM_message.hh"
-#include "WM_toolsystem.h"
+#include "WM_toolsystem.hh"
 #include "WM_types.hh"
 
 #include "object_intern.h" /* own include */
@@ -1979,7 +1978,8 @@ static int move_to_collection_exec(bContext *C, wmOperator *op)
                               nullptr;
 
   if ((single_object != nullptr) && is_link &&
-      BKE_collection_has_object(collection, single_object)) {
+      BKE_collection_has_object(collection, single_object))
+  {
     BKE_reportf(op->reports,
                 RPT_ERROR,
                 "%s already in %s",

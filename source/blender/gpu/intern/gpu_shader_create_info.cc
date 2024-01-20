@@ -122,6 +122,7 @@ void ShaderCreateInfo::finalize()
     vertex_out_interfaces_.extend_non_duplicates(info.vertex_out_interfaces_);
     geometry_out_interfaces_.extend_non_duplicates(info.geometry_out_interfaces_);
     subpass_inputs_.extend_non_duplicates(info.subpass_inputs_);
+    specialization_constants_.extend_non_duplicates(info.specialization_constants_);
 
     validate_vertex_attributes(&info);
 
@@ -131,6 +132,14 @@ void ShaderCreateInfo::finalize()
     batch_resources_.extend_non_duplicates(info.batch_resources_);
     pass_resources_.extend_non_duplicates(info.pass_resources_);
     typedef_sources_.extend_non_duplicates(info.typedef_sources_);
+
+    /* API-specific parameters.
+     * We will only copy API-specific parameters if they are otherwise unassigned. */
+#ifdef WITH_METAL_BACKEND
+    if (mtl_max_threads_per_threadgroup_ == 0) {
+      mtl_max_threads_per_threadgroup_ = info.mtl_max_threads_per_threadgroup_;
+    }
+#endif
 
     if (info.early_fragment_test_) {
       early_fragment_test_ = true;
@@ -278,6 +287,16 @@ std::string ShaderCreateInfo::check_error() const
     error += this->name_ +
              " contains a stage interface using an instance name and mixed interpolation modes. "
              "This is not compatible with Vulkan and need to be adjusted.\n";
+  }
+
+  /* Validate specialization constants. */
+  for (int i = 0; i < specialization_constants_.size(); i++) {
+    for (int j = i + 1; j < specialization_constants_.size(); j++) {
+      if (specialization_constants_[i].name == specialization_constants_[j].name) {
+        error += this->name_ + " contains two specialization constants with the name: " +
+                 std::string(specialization_constants_[i].name);
+      }
+    }
   }
 #endif
 

@@ -1,9 +1,9 @@
 
 msgid ""
 msgstr ""
-"Project-Id-Version: Blender 4.1.0 Alpha (b'274dc815eb35')\n"
+"Project-Id-Version: Blender 4.1.0 Alpha (b'd13edee3e0cc')\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-11 11:18:04\n"
+"POT-Creation-Date: 2024-01-08 11:04:23\n"
 "PO-Revision-Date: 2012-09-07 22:32+0100\n"
 "Last-Translator: Nikola Radovanovic <cobisimo@gmail.com>\n"
 "Language-Team: Nikola Radovanovic\n"
@@ -1265,6 +1265,10 @@ msgstr "Релативна путања"
 
 msgid "Bones"
 msgstr "Кости"
+
+
+msgid "Index"
+msgstr "Индекс"
 
 
 msgid "Visible"
@@ -2954,10 +2958,6 @@ msgstr "Плоча"
 
 msgid "View"
 msgstr "Поглед"
-
-
-msgid "Index"
-msgstr "Индекс"
 
 
 msgid "Segments"
@@ -11571,6 +11571,10 @@ msgid "Component"
 msgstr "Компонента"
 
 
+msgid "Bake"
+msgstr "Испеци"
+
+
 msgid "Original"
 msgstr "Оригинал"
 
@@ -13559,9 +13563,22 @@ msgid "Reset Original Length"
 msgstr "Врати оригиналну дужину"
 
 
+msgid "Duplicate"
+msgstr "Дуплирај"
+
+
 msgctxt "Operator"
 msgid "Select Random"
 msgstr "Изабери насумично"
+
+
+msgctxt "Operator"
+msgid "Clear Tilt"
+msgstr "Очисти увртање"
+
+
+msgid "Clear the tilt of selected control points"
+msgstr "Чисти увртање изабраних контролних тачака"
 
 
 msgid "Cyclic U"
@@ -13858,15 +13875,6 @@ msgid "Subdivide selected segments"
 msgstr "Издели изабране сегменте"
 
 
-msgctxt "Operator"
-msgid "Clear Tilt"
-msgstr "Очисти увртање"
-
-
-msgid "Clear the tilt of selected control points"
-msgstr "Чисти увртање изабраних контролних тачака"
-
-
 msgid "Add a new control point (linked to only selected end-curve one, if any)"
 msgstr "Додаје нову контролну тачку (повезану са изабраним делом криве, уколико постоји)"
 
@@ -13996,11 +14004,6 @@ msgstr "Ојлер (ZXY)"
 
 msgid "Euler (ZYX)"
 msgstr "Ојлер (ZYX)"
-
-
-msgctxt "Operator"
-msgid "Export STL"
-msgstr "Извоз у STL"
 
 
 msgid "Ascii"
@@ -14880,10 +14883,6 @@ msgid "Flat"
 msgstr "Равно"
 
 
-msgid "Duplicate"
-msgstr "Дуплирај"
-
-
 msgctxt "Operator"
 msgid "Select Mode"
 msgstr "Мод изабора"
@@ -15075,11 +15074,6 @@ msgstr "Релативне путање"
 
 msgid "Shadeless"
 msgstr "Сенчења"
-
-
-msgctxt "Operator"
-msgid "Import STL"
-msgstr "Увоз у STL"
 
 
 msgctxt "Operator"
@@ -18076,10 +18070,6 @@ msgid "Bake physics"
 msgstr "Пече физику"
 
 
-msgid "Bake"
-msgstr "Испеци"
-
-
 msgctxt "Operator"
 msgid "Bake All Physics"
 msgstr "Испеци сву физику"
@@ -20370,6 +20360,16 @@ msgstr "Мени претраге"
 msgctxt "Operator"
 msgid "Splash Screen"
 msgstr "Почетни екран"
+
+
+msgctxt "Operator"
+msgid "Export STL"
+msgstr "Извоз у STL"
+
+
+msgctxt "Operator"
+msgid "Import STL"
+msgstr "Увоз у STL"
 
 
 msgid "URL"
@@ -26322,6 +26322,10 @@ msgid "Browse Particle Settings to be linked"
 msgstr "Изаберите поставке честица за повезивање"
 
 
+msgid "Modified"
+msgstr "Измењен"
+
+
 msgctxt "Object"
 msgid "New"
 msgstr "Ново"
@@ -27483,10 +27487,6 @@ msgstr "Blender-ов преглед датотека"
 
 msgid "unable to open the file"
 msgstr "Не могу да отворим датотеку"
-
-
-msgid "Modified"
-msgstr "Измењен"
 
 
 msgid "Not a library"

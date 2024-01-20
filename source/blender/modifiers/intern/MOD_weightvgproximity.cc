@@ -26,7 +26,7 @@
 #include "DNA_screen_types.h"
 
 #include "BKE_bvhutils.hh"
-#include "BKE_colortools.h" /* CurveMapping. */
+#include "BKE_colortools.hh" /* CurveMapping. */
 #include "BKE_context.hh"
 #include "BKE_curve.hh"
 #include "BKE_customdata.hh"
@@ -57,7 +57,7 @@
 #include "MOD_util.hh"
 #include "MOD_weightvg_util.hh"
 
-//#define USE_TIMEIT
+// #define USE_TIMEIT
 
 #ifdef USE_TIMEIT
 #  include "PIL_time.h"
@@ -181,7 +181,7 @@ static void get_vert2geom_distance(int verts_num,
   }
   if (dist_f) {
     /* Create a BVH-tree of the given target's faces. */
-    BKE_bvhtree_from_mesh_get(&treeData_f, target, BVHTREE_FROM_LOOPTRIS, 2);
+    BKE_bvhtree_from_mesh_get(&treeData_f, target, BVHTREE_FROM_CORNER_TRIS, 2);
     if (treeData_f.tree == nullptr) {
       OUT_OF_MEMORY();
       return;
@@ -386,7 +386,8 @@ static void update_depsgraph(ModifierData *md, const ModifierUpdateDepsgraphCont
     DEG_add_object_relation(
         ctx->node, wmd->proximity_ob_target, DEG_OB_COMP_TRANSFORM, "WeightVGProximity Modifier");
     if (wmd->proximity_ob_target->data != nullptr &&
-        wmd->proximity_mode == MOD_WVG_PROXIMITY_GEOMETRY) {
+        wmd->proximity_mode == MOD_WVG_PROXIMITY_GEOMETRY)
+    {
       DEG_add_object_relation(
           ctx->node, wmd->proximity_ob_target, DEG_OB_COMP_GEOMETRY, "WeightVGProximity Modifier");
     }
@@ -450,7 +451,7 @@ static Mesh *modify_mesh(ModifierData *md, const ModifierEvalContext *ctx, Mesh 
 #endif
 
   /* Get number of verts. */
-  const int verts_num = mesh->totvert;
+  const int verts_num = mesh->verts_num;
 
   /* Check if we can just return the original mesh.
    * Must have verts and therefore verts assigned to vgroups to do anything useful!

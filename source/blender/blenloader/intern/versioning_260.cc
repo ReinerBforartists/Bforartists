@@ -34,6 +34,7 @@
 #include "DNA_object_types.h"
 #include "DNA_screen_types.h"
 #include "DNA_sdna_types.h"
+#include "DNA_sequence_types.h"
 #include "DNA_space_types.h"
 #include "DNA_text_types.h"
 #include "DNA_view3d_types.h"
@@ -52,6 +53,7 @@
 #include "BLT_translation.h"
 
 #include "BKE_anim_visualization.h"
+#include "BKE_customdata.hh"
 #include "BKE_image.h"
 #include "BKE_main.hh" /* for Main */
 #include "BKE_mesh.hh" /* for ME_ defines (patching) */
@@ -352,12 +354,12 @@ static void do_versions_nodetree_multi_file_output_format_2_62_1(Scene *sce, bNo
 /* blue and red are swapped pre 2.62.1, be sane (red == red) now! */
 static void do_versions_mesh_mloopcol_swap_2_62_1(Mesh *mesh)
 {
-  for (int a = 0; a < mesh->loop_data.totlayer; a++) {
-    CustomDataLayer *layer = &mesh->loop_data.layers[a];
+  for (int a = 0; a < mesh->corner_data.totlayer; a++) {
+    CustomDataLayer *layer = &mesh->corner_data.layers[a];
 
     if (layer->type == CD_PROP_BYTE_COLOR) {
       MLoopCol *mloopcol = static_cast<MLoopCol *>(layer->data);
-      for (int i = 0; i < mesh->totloop; i++, mloopcol++) {
+      for (int i = 0; i < mesh->corners_num; i++, mloopcol++) {
         SWAP(uchar, mloopcol->r, mloopcol->b);
       }
     }
@@ -1908,7 +1910,7 @@ void blo_do_versions_260(FileData *fd, Library * /*lib*/, Main *bmain)
     {
       LISTBASE_FOREACH (Mesh *, me, &bmain->meshes) {
         CustomData_update_typemap(&me->vert_data);
-        CustomData_free_layers(&me->vert_data, CD_MSTICKY, me->totvert);
+        CustomData_free_layers(&me->vert_data, CD_MSTICKY, me->verts_num);
       }
     }
   }
@@ -2823,10 +2825,12 @@ void blo_do_versions_260(FileData *fd, Library * /*lib*/, Main *bmain)
     }
 
     if (!DNA_struct_member_exists(
-            fd->filesdna, "MovieTrackingPlaneTrack", "float", "image_opacity")) {
+            fd->filesdna, "MovieTrackingPlaneTrack", "float", "image_opacity"))
+    {
       LISTBASE_FOREACH (MovieClip *, clip, &bmain->movieclips) {
         LISTBASE_FOREACH (
-            MovieTrackingPlaneTrack *, plane_track, &clip->tracking.plane_tracks_legacy) {
+            MovieTrackingPlaneTrack *, plane_track, &clip->tracking.plane_tracks_legacy)
+        {
           plane_track->image_opacity = 1.0f;
         }
       }
