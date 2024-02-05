@@ -55,7 +55,7 @@ class DATA_PT_modifiers(ModifierButtonsPanel, Panel):
         col1 = flow.column()
         col2 = flow.column()
 
-        col1.operator("object.add_modifier_menu", icon='ADD')
+        col1.operator("object.modifier_add_menu", icon='ADD')
         if geometry_nodes_supported:
             col2.operator("object.add_asset_modifier_menu", icon='ADD')
 
@@ -366,8 +366,8 @@ class OBJECT_OT_add_gpencil_modifier_menu(InvokeMenuOperator, Operator):
     space_context = 'MODIFIER'
 
 
-class AddModifierMenu(Operator):
-    bl_idname = "object.add_modifier_menu"
+class OBJECT_OT_modifier_add_menu(Operator):
+    bl_idname = "object.modifier_add_menu"
     bl_label = "Add Modifier"
     bl_description = "Add a procedural operation/effect to the active object" #BFA - new properties editor add menus
 
@@ -402,7 +402,7 @@ classes = (
     DATA_PT_gpencil_modifiers,
     OBJECT_MT_gpencil_modifier_add, #BFA - new properties editor add menus
     OBJECT_OT_add_gpencil_modifier_menu, #BFA - new properties editor add menus
-    AddModifierMenu,
+    OBJECT_OT_modifier_add_menu, #BFA - new properties editor add menus
 )
 
 if __name__ == "__main__":  # only for live edit.

@@ -4,7 +4,7 @@
 
 #BFA - new properties editor add menus
 import bpy
-
+from bpy.types import Operator, Menu
 
 def fetch_op_data(class_name):
     type_class = getattr(bpy.types, class_name)
@@ -20,7 +20,7 @@ def fetch_op_data(class_name):
     return (OPERATOR_DATA, TRANSLATION_CONTEXT)
 
 
-class GenericColumnMenu:
+class GenericColumnMenu(Menu):
     bl_label = ""
     bl_options = {'SEARCH_ON_KEY_PRESS'}
 
@@ -30,7 +30,7 @@ class GenericColumnMenu:
     def draw_operator_column(cls, layout, header, types, icon='NONE'):
         text_ctxt = cls.TRANSLATION_CONTEXT
         col = layout.column()
-        
+
         if layout.operator_context == 'INVOKE_REGION_WIN':
             col.label(text=cls.search_header)
         else:
@@ -42,7 +42,7 @@ class GenericColumnMenu:
             col.operator(cls.op_id, text=label, icon=op_icon, text_ctxt=text_ctxt).type = op_type
 
 
-class InvokeMenuOperator:
+class InvokeMenuOperator(Operator):
     bl_options = {'INTERNAL'}
 
     @classmethod
@@ -53,7 +53,10 @@ class InvokeMenuOperator:
     def invoke(self, context, event):
         return bpy.ops.wm.call_menu(name=self.menu_id)
 
-classes = (
+
+classes = [
     GenericColumnMenu,
-    InvokeMenuOperator,
-    )
+    InvokeMenuOperator
+    ]
+
+register, unregister = bpy.utils.register_classes_factory(classes)
