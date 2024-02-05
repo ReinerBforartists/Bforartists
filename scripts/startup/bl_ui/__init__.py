@@ -62,6 +62,8 @@ _modules = [
     "properties_world",
     "properties_collection",
     "generic_ui_list",
+    #BFA - new properties editor add menus
+    "generic_column_menu",
 
     # Generic Space Modules
     #
@@ -69,7 +71,7 @@ _modules = [
     "space_toolsystem_common",
     "space_toolsystem_toolbar",
 
-    #bfa - toolbar tabs panels
+    #BFA - toolbar tabs panels
     "space_toolsystem_toolbar_tabs",
     "space_image_uv_toolbar_tabs",
     "space_node_tabs",
@@ -96,9 +98,9 @@ _modules = [
     "space_view3d",
     "space_view3d_toolbar",
 
-    # bfa - toolbar
+    #BFA - toolbar
     "space_toolbar",
-    # bfa - node toolshelf
+    #BFA - node toolshelf
     "space_node_toolshelf",
 
     # XXX, keep last so panels show after all other tool options.
