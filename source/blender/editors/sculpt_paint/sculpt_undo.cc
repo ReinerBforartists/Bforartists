@@ -51,7 +51,7 @@
 #include "BKE_customdata.hh"
 #include "BKE_global.h"
 #include "BKE_key.h"
-#include "BKE_layer.h"
+#include "BKE_layer.hh"
 #include "BKE_main.hh"
 #include "BKE_mesh.hh"
 #include "BKE_multires.hh"
@@ -60,7 +60,7 @@
 #include "BKE_scene.h"
 #include "BKE_subdiv_ccg.hh"
 #include "BKE_subsurf.hh"
-#include "BKE_undo_system.h"
+#include "BKE_undo_system.hh"
 
 /* TODO(sergey): Ideally should be no direct call to such low level things. */
 #include "BKE_subdiv_eval.hh"
@@ -295,7 +295,7 @@ static void update_modified_node_mesh(PBVHNode &node, PartialUpdateData &data)
   if (!data.modified_position_verts.is_empty()) {
     for (const int vert : verts) {
       if (data.modified_position_verts[vert]) {
-        BKE_pbvh_node_mark_normals_update(&node);
+        BKE_pbvh_node_mark_positions_update(&node);
         break;
       }
     }
@@ -445,8 +445,9 @@ static bool restore_coords(
     MutableSpan<float3> positions = ss->vert_positions;
 
     if (ss->shapekey_active) {
-      MutableSpan<float3> vertCos(static_cast<float3 *>(ss->shapekey_active->data),
-                                  ss->shapekey_active->totelem);
+      float(*vertCos)[3] = BKE_keyblock_convert_to_vertcos(ob, ss->shapekey_active);
+      const Span key_positions(reinterpret_cast<const float3 *>(vertCos),
+                               ss->shapekey_active->totelem);
 
       if (!unode.orig_position.is_empty()) {
         if (ss->deform_modifiers_active) {
@@ -467,11 +468,13 @@ static bool restore_coords(
       }
 
       /* Propagate new coords to keyblock. */
-      SCULPT_vertcos_to_key(ob, ss->shapekey_active, vertCos);
+      SCULPT_vertcos_to_key(ob, ss->shapekey_active, key_positions);
 
       /* PBVH uses its own vertex array, so coords should be */
       /* propagated to PBVH here. */
-      BKE_pbvh_vert_coords_apply(ss->pbvh, vertCos);
+      BKE_pbvh_vert_coords_apply(ss->pbvh, key_positions);
+
+      MEM_freeN(vertCos);
     }
     else {
       if (!unode.orig_position.is_empty()) {
@@ -1340,8 +1343,9 @@ static void store_hidden(Object *ob, Node *unode)
 
   PBVHNode *node = static_cast<PBVHNode *>(unode->node);
   const Span<int> verts = BKE_pbvh_node_get_vert_indices(node);
-  for (const int i : verts.index_range())
+  for (const int i : verts.index_range()) {
     unode->vert_hidden[i].set(hide_vert[verts[i]]);
+  }
 }
 
 static void store_face_hidden(Object &object, Node &unode)
@@ -1354,8 +1358,9 @@ static void store_face_hidden(Object &object, Node &unode)
     return;
   }
   const Span<int> faces = unode.face_indices;
-  for (const int i : faces.index_range())
+  for (const int i : faces.index_range()) {
     unode.face_hidden[i].set(hide_poly[faces[i]]);
+  }
 }
 
 static void store_mask(Object *ob, Node *unode)
@@ -1988,7 +1993,7 @@ static UndoSculpt *get_nodes()
 
 static bool use_multires_mesh(bContext *C)
 {
-  if (BKE_paintmode_get_active_from_context(C) != PAINT_MODE_SCULPT) {
+  if (BKE_paintmode_get_active_from_context(C) != PaintMode::Sculpt) {
     return false;
   }
 

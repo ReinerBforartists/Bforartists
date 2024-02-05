@@ -12,7 +12,7 @@
 
 #include "DNA_defs.h"
 #include "DNA_listBase.h"
-#include "DNA_session_uuid_types.h"
+#include "DNA_session_uid_types.h"
 
 #ifdef __cplusplus
 namespace blender {
@@ -93,6 +93,12 @@ typedef enum ModifierType {
   eModifierType_MeshToVolume = 58,
   eModifierType_VolumeDisplace = 59,
   eModifierType_VolumeToMesh = 60,
+  eModifierType_GreasePencilOpacity = 61,
+  eModifierType_GreasePencilSubdiv = 62,
+  eModifierType_GreasePencilColor = 63,
+  eModifierType_GreasePencilTint = 64,
+  eModifierType_GreasePencilSmooth = 65,
+  eModifierType_GreasePencilOffset = 66,
   NUM_MODIFIER_TYPES,
 } ModifierType;
 
@@ -134,7 +140,7 @@ typedef struct ModifierData {
   char *error;
 
   /** Runtime field which contains unique identifier of the modifier. */
-  SessionUUID session_uuid;
+  SessionUID session_uid;
 
   /** Runtime field which contains runtime data which is specific to a modifier type. */
   void *runtime;
@@ -2484,3 +2490,180 @@ typedef enum VolumeToMeshResolutionMode {
 typedef enum VolumeToMeshFlag {
   VOLUME_TO_MESH_USE_SMOOTH_SHADE = 1 << 0,
 } VolumeToMeshFlag;
+
+/**
+ * Common influence data for grease pencil modifiers.
+ * Not all parts may be used by all modifier types.
+ */
+typedef struct GreasePencilModifierInfluenceData {
+  /** GreasePencilModifierInfluenceFlag */
+  int flag;
+  char _pad1[4];
+  /** Filter by layer name. */
+  char layer_name[64];
+  /** Filter by stroke material. */
+  struct Material *material;
+  /** Filter by layer pass. */
+  int layer_pass;
+  /** Filter by material pass. */
+  int material_pass;
+  /** #MAX_VGROUP_NAME. */
+  char vertex_group_name[64];
+  struct CurveMapping *custom_curve;
+  void *_pad2;
+} GreasePencilModifierInfluenceData;
+
+typedef enum GreasePencilModifierInfluenceFlag {
+  GREASE_PENCIL_INFLUENCE_INVERT_LAYER_FILTER = (1 << 0),
+  GREASE_PENCIL_INFLUENCE_USE_LAYER_PASS_FILTER = (1 << 1),
+  GREASE_PENCIL_INFLUENCE_INVERT_LAYER_PASS_FILTER = (1 << 2),
+  GREASE_PENCIL_INFLUENCE_INVERT_MATERIAL_FILTER = (1 << 3),
+  GREASE_PENCIL_INFLUENCE_USE_MATERIAL_PASS_FILTER = (1 << 4),
+  GREASE_PENCIL_INFLUENCE_INVERT_MATERIAL_PASS_FILTER = (1 << 5),
+  GREASE_PENCIL_INFLUENCE_INVERT_VERTEX_GROUP = (1 << 6),
+  GREASE_PENCIL_INFLUENCE_USE_CUSTOM_CURVE = (1 << 7),
+} GreasePencilModifierInfluenceFlag;
+
+typedef struct GreasePencilOpacityModifierData {
+  ModifierData modifier;
+  GreasePencilModifierInfluenceData influence;
+  /** GreasePencilOpacityModifierFlag */
+  int flag;
+  /** GreasePencilModifierColorMode */
+  char color_mode;
+  char _pad1[3];
+  float color_factor;
+  float hardness_factor;
+  void *_pad2;
+} GreasePencilOpacityModifierData;
+
+/** Which attributes are affected by color modifiers. */
+typedef enum GreasePencilModifierColorMode {
+  MOD_GREASE_PENCIL_COLOR_STROKE = 0,
+  MOD_GREASE_PENCIL_COLOR_FILL = 1,
+  MOD_GREASE_PENCIL_COLOR_BOTH = 2,
+  MOD_GREASE_PENCIL_COLOR_HARDNESS = 3,
+} GreasePencilModifierColorMode;
+
+typedef enum GreasePencilOpacityModifierFlag {
+  /* Use vertex group as opacity factors instead of influence. */
+  MOD_GREASE_PENCIL_OPACITY_USE_WEIGHT_AS_FACTOR = (1 << 0),
+  /* Set the opacity for every point in a stroke, otherwise multiply existing opacity. */
+  MOD_GREASE_PENCIL_OPACITY_USE_UNIFORM_OPACITY = (1 << 1),
+} GreasePencilOpacityModifierFlag;
+
+typedef struct GreasePencilSubdivModifierData {
+  ModifierData modifier;
+  GreasePencilModifierInfluenceData influence;
+  /** #GreasePencilSubdivideType. */
+  int type;
+  /** Level of subdivisions, will generate 2^level segments. */
+  int level;
+
+  char _pad[8];
+  void *_pad1;
+} GreasePencilSubdivModifierData;
+
+typedef enum GreasePencilSubdivideType {
+  MOD_GREASE_PENCIL_SUBDIV_CATMULL = 0,
+  MOD_GREASE_PENCIL_SUBDIV_SIMPLE = 1,
+} GreasePencilSubdivideType;
+
+typedef struct GreasePencilColorModifierData {
+  ModifierData modifier;
+  GreasePencilModifierInfluenceData influence;
+  /** GreasePencilModifierColorMode */
+  char color_mode;
+  char _pad1[3];
+  /** HSV factors. */
+  float hsv[3];
+  void *_pad2;
+} GreasePencilColorModifierData;
+
+typedef struct GreasePencilTintModifierData {
+  ModifierData modifier;
+  GreasePencilModifierInfluenceData influence;
+  /** GreasePencilTintModifierFlag */
+  short flag;
+  /** GreasePencilModifierColorMode */
+  char color_mode;
+  /** GreasePencilTintModifierMode */
+  char tint_mode;
+  float factor;
+  /** Influence distance from the gradient object. */
+  float radius;
+  /** Simple tint color. */
+  float color[3];
+  /** Object for gradient direction. */
+  struct Object *object;
+  /** Color ramp for the gradient. */
+  struct ColorBand *color_ramp;
+  void *_pad;
+} GreasePencilTintModifierData;
+
+typedef enum GreasePencilTintModifierMode {
+  MOD_GREASE_PENCIL_TINT_UNIFORM = 0,
+  MOD_GREASE_PENCIL_TINT_GRADIENT = 1,
+} GreasePencilTintModifierMode;
+
+typedef enum GreasePencilTintModifierFlag {
+  /* Use vertex group as factors instead of influence. */
+  MOD_GREASE_PENCIL_TINT_USE_WEIGHT_AS_FACTOR = (1 << 0),
+} GreasePencilTintModifierFlag;
+
+typedef struct GreasePencilSmoothModifierData {
+  ModifierData modifier;
+  GreasePencilModifierInfluenceData influence;
+  /** `eGreasePencilSmooth_Flag. */
+  int flag;
+  /** Factor of smooth. */
+  float factor;
+  /** How many times apply smooth. */
+  int step;
+
+  char _pad[4];
+  void *_pad1;
+} GreasePencilSmoothModifierData;
+
+typedef enum eGreasePencilSmooth_Flag {
+  MOD_GREASE_PENCIL_SMOOTH_OPEN_INFLUENCE_PANEL = (1 << 0),
+  MOD_GREASE_PENCIL_SMOOTH_MOD_LOCATION = (1 << 1),
+  MOD_GREASE_PENCIL_SMOOTH_MOD_STRENGTH = (1 << 2),
+  MOD_GREASE_PENCIL_SMOOTH_MOD_THICKNESS = (1 << 3),
+  MOD_GREASE_PENCIL_SMOOTH_MOD_UV = (1 << 4),
+  MOD_GREASE_PENCIL_SMOOTH_KEEP_SHAPE = (1 << 5),
+  MOD_GREASE_PENCIL_SMOOTH_SMOOTH_ENDS = (1 << 6),
+} eGreasePencilSmooth_Flag;
+
+typedef struct GreasePencilOffsetModifierData {
+  ModifierData modifier;
+  GreasePencilModifierInfluenceData influence;
+  /** GreasePencilOffsetModifierFlag */
+  int flag;
+  /** GreasePencilOffsetModifierMode */
+  int offset_mode;
+  /** Global offset. */
+  float loc[3];
+  float rot[3];
+  float scale[3];
+  /** Offset per stroke. */
+  float stroke_loc[3];
+  float stroke_rot[3];
+  float stroke_scale[3];
+  int seed;
+  int stroke_step;
+  int stroke_start_offset;
+  char _pad1[4];
+  void *_pad2;
+} GreasePencilOffsetModifierData;
+
+typedef enum GreasePencilOffsetModifierFlag {
+  MOD_GREASE_PENCIL_OFFSET_UNIFORM_RANDOM_SCALE = (1 << 0),
+} GreasePencilOffsetModifierFlag;
+
+typedef enum GreasePencilOffsetModifierMode {
+  MOD_GREASE_PENCIL_OFFSET_RANDOM = 0,
+  MOD_GREASE_PENCIL_OFFSET_LAYER = 1,
+  MOD_GREASE_PENCIL_OFFSET_MATERIAL = 2,
+  MOD_GREASE_PENCIL_OFFSET_STROKE = 3,
+} GreasePencilOffsetModifierMode;

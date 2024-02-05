@@ -32,9 +32,9 @@
 #include "BKE_deform.h"
 #include "BKE_gpencil_legacy.h"
 #include "BKE_grease_pencil.hh"
-#include "BKE_idtype.h"
-#include "BKE_layer.h"
-#include "BKE_lib_id.h"
+#include "BKE_idtype.hh"
+#include "BKE_layer.hh"
+#include "BKE_lib_id.hh"
 #include "BKE_lib_override.hh"
 #include "BKE_library.hh"
 #include "BKE_main.hh"
@@ -91,7 +91,7 @@ static void outliner_tree_dimensions_impl(SpaceOutliner *space_outliner,
                                           int *height)
 {
   LISTBASE_FOREACH (TreeElement *, te, lb) {
-    *width = MAX2(*width, te->xend);
+    *width = std::max(*width, int(te->xend));
     if (height != nullptr) {
       *height += UI_UNIT_Y;
     }
@@ -686,7 +686,7 @@ static void namebutton_fn(bContext *C, void *tsep, char *oldname)
 
     if (tselem->type == TSE_SOME_ID) {
       BKE_main_namemap_remove_name(bmain, tselem->id, oldname);
-      BLI_libblock_ensure_unique_name(bmain, tselem->id->name);
+      BKE_libblock_ensure_unique_name(bmain, tselem->id);
 
       WM_msg_publish_rna_prop(mbus, tselem->id, tselem->id, ID, name);
 
@@ -754,7 +754,7 @@ static void namebutton_fn(bContext *C, void *tsep, char *oldname)
         case TSE_NLA_ACTION: {
           bAction *act = (bAction *)tselem->id;
           BKE_main_namemap_remove_name(bmain, &act->id, oldname);
-          BLI_libblock_ensure_unique_name(bmain, act->id.name);
+          BKE_libblock_ensure_unique_name(bmain, &act->id);
           WM_msg_publish_rna_prop(mbus, &act->id, &act->id, ID, name);
           DEG_id_tag_update(tselem->id, ID_RECALC_COPY_ON_WRITE);
           break;
@@ -876,7 +876,7 @@ static void namebutton_fn(bContext *C, void *tsep, char *oldname)
           /* The ID is a #Collection, not a #LayerCollection */
           Collection *collection = (Collection *)tselem->id;
           BKE_main_namemap_remove_name(bmain, &collection->id, oldname);
-          BLI_libblock_ensure_unique_name(bmain, collection->id.name);
+          BKE_libblock_ensure_unique_name(bmain, &collection->id);
           WM_msg_publish_rna_prop(mbus, &collection->id, &collection->id, ID, name);
           WM_event_add_notifier(C, NC_ID | NA_RENAME, nullptr);
           DEG_id_tag_update(tselem->id, ID_RECALC_COPY_ON_WRITE);
@@ -1964,8 +1964,8 @@ static bool outliner_but_identity_cmp_context_id_fn(const uiBut *a, const uiBut 
   const ID *id_a = (const ID *)idptr_a->data;
   const ID *id_b = (const ID *)idptr_b->data;
 
-  /* Using session UUID to compare is safer than using the pointer. */
-  return id_a->session_uuid == id_b->session_uuid;
+  /* Using session UID to compare is safer than using the pointer. */
+  return id_a->session_uid == id_b->session_uid;
 }
 
 static void outliner_draw_overrides_restrictbuts(Main *bmain,

@@ -35,7 +35,7 @@
 #include "BKE_fcurve.h"
 #include "BKE_global.h"
 #include "BKE_idprop.h"
-#include "BKE_idtype.h"
+#include "BKE_idtype.hh"
 #include "BKE_lib_override.hh"
 #include "BKE_main.hh"
 #include "BKE_node.hh"
@@ -2276,7 +2276,12 @@ static void rna_property_update(
     if (ptr->owner_id != nullptr && ((prop->flag & PROP_NO_DEG_UPDATE) == 0)) {
       const short id_type = GS(ptr->owner_id->name);
       if (ID_TYPE_IS_COW(id_type)) {
-        DEG_id_tag_update(ptr->owner_id, ID_RECALC_COPY_ON_WRITE);
+        if (prop->flag & PROP_DEG_SYNC_ONLY) {
+          DEG_id_tag_update(ptr->owner_id, ID_RECALC_COPY_ON_WRITE);
+        }
+        else {
+          DEG_id_tag_update(ptr->owner_id, ID_RECALC_COPY_ON_WRITE | ID_RECALC_PARAMETERS);
+        }
       }
     }
     /* End message bus. */
@@ -4664,7 +4669,7 @@ int RNA_property_collection_raw_array(
   } \
   (void)0
 
-int RNA_raw_type_sizeof(RawPropertyType type)
+size_t RNA_raw_type_sizeof(RawPropertyType type)
 {
   switch (type) {
     case PROP_RAW_CHAR:
@@ -4773,20 +4778,31 @@ static int rna_raw_access(ReportList *reports,
       if (out.type == in.type) {
         void *inp = in.array;
         void *outp = out.array;
-        int a, size;
+        size_t size;
 
         size = RNA_raw_type_sizeof(out.type) * arraylen;
 
-        for (a = 0; a < out.len; a++) {
+        if (size == out.stride) {
+          /* The property is stored contiguously so the entire array can be copied at once. */
           if (set) {
-            memcpy(outp, inp, size);
+            memcpy(outp, inp, size * out.len);
           }
           else {
-            memcpy(inp, outp, size);
+            memcpy(inp, outp, size * out.len);
           }
+        }
+        else {
+          for (int a = 0; a < out.len; a++) {
+            if (set) {
+              memcpy(outp, inp, size);
+            }
+            else {
+              memcpy(inp, outp, size);
+            }
 
-          inp = (char *)inp + size;
-          outp = (char *)outp + out.stride;
+            inp = (char *)inp + size;
+            outp = (char *)outp + out.stride;
+          }
         }
 
         return 1;

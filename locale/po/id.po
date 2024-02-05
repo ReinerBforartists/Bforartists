@@ -1,9 +1,9 @@
 
 msgid ""
 msgstr ""
-"Project-Id-Version: Blender 4.1.0 Alpha (b'd13edee3e0cc')\n"
+"Project-Id-Version: Blender 4.1.0 Alpha (b'8b1da14f0a3d')\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-08 11:04:23\n"
+"POT-Creation-Date: 2024-01-22 11:04+0000\n"
 "PO-Revision-Date: 2023-12-04 11:07+0000\n"
 "Last-Translator: Mohamad Rido <mohamadrido@mail.ru>\n"
 "Language-Team: Indonesian <https://translate.blender.org/projects/blender-ui/ui/id/>\n"
@@ -15295,6 +15295,14 @@ msgid "Remove Target"
 msgstr "Hapus Target"
 
 
+msgid "Extrude selected control point(s)"
+msgstr "Modus Sunting"
+
+
+msgid "Extrude curve and move result"
+msgstr "Partikel"
+
+
 msgid "(De)select all control points"
 msgstr "Material"
 
@@ -15323,20 +15331,12 @@ msgid "Duplicate curve and move"
 msgstr "Hapus"
 
 
-msgid "Extrude selected control point(s)"
-msgstr "Modus Sunting"
-
-
 msgid "Skin Resize"
 msgstr "Mengubah Ukuran Kulit"
 
 
 msgid "Bend"
 msgstr "Membengkokkan"
-
-
-msgid "Extrude curve and move result"
-msgstr "Partikel"
 
 
 msgctxt "Operator"
@@ -17428,6 +17428,10 @@ msgid "Add Shape Key"
 msgstr "Tambah Kunci Bentuk"
 
 
+msgid "Lock action to execute on vertex groups"
+msgstr "Warna Standar"
+
+
 msgctxt "Operator"
 msgid "Remove Shape Key"
 msgstr "Induk"
@@ -17502,10 +17506,6 @@ msgstr "Warna Standar"
 
 msgctxt "Operator"
 msgid "Vertex Group Levels"
-msgstr "Warna Standar"
-
-
-msgid "Lock action to execute on vertex groups"
 msgstr "Warna Standar"
 
 
@@ -23942,10 +23942,6 @@ msgid "Online Manual"
 msgstr "Material"
 
 
-msgid "Inputs:"
-msgstr "Input:"
-
-
 msgctxt "Operator"
 msgid "Isolate"
 msgstr "Isolasi"
@@ -25064,18 +25060,6 @@ msgstr "Keringanan:"
 
 msgid "Alpha:"
 msgstr "Alpha:"
-
-
-msgid "Python: %s"
-msgstr "Python: %s"
-
-
-msgid "Value: %s"
-msgstr "Nilai: %s"
-
-
-msgid "Python: %s.%s"
-msgstr "Python: %s.%s"
 
 
 msgid "Anim Player"
@@ -26525,16 +26509,16 @@ msgid "Don't Save"
 msgstr "Jangan Disimpan"
 
 
+msgid "Enable scripts"
+msgstr "Mengaktifkan skrip"
+
+
 msgid "unable to open the file"
 msgstr "tidak dapat membuka dokumen"
 
 
 msgid "Permanently allow execution of scripts"
 msgstr "Memperbolehkan eksekusi skrip secara permanen"
-
-
-msgid "Enable scripts"
-msgstr "Mengaktifkan skrip"
 
 
 msgid "Context window not set"

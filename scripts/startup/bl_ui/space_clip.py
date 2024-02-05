@@ -267,7 +267,7 @@ class CLIP_HT_header(Header):
 
         sc = context.space_data
 
-        ALL_MT_editormenu.draw_hidden(context, layout)  # bfa - show hide the editormenu
+        ALL_MT_editormenu_clip.draw_hidden(context, layout)  # bfa - show hide the editormenu, editor suffix is needed.
 
         layout.prop(sc, "mode", text="")
         if sc.mode == 'TRACKING':
@@ -314,8 +314,8 @@ class CLIP_PT_options(Panel):
         col.prop(sc, "show_locked_time")
 
 
-# bfa - show hide the editormenu
-class ALL_MT_editormenu(Menu):
+# bfa - show hide the editormenu, editor suffix is needed.
+class ALL_MT_editormenu_clip(Menu):
     bl_label = ""
 
     def draw(self, context):
@@ -1440,19 +1440,15 @@ class CLIP_MT_view(Menu):
         sc = context.space_data
 
         if sc.view == 'CLIP':
-            layout.prop(sc, "show_region_ui")
             layout.prop(sc, "show_region_toolbar")
+            layout.prop(sc, "show_region_ui")
             layout.prop(sc, "show_region_hud")
-
             layout.separator()
 
             layout.menu("CLIP_MT_view_annotations")
-
             layout.separator()
-
             if sc.mode == 'MASK':
                 layout.operator("clip.cursor_set", text="Set 2D Cursor", icon='CURSOR')
-
                 layout.separator()
 
             layout.operator("clip.view_selected", icon="VIEW_SELECTED")
@@ -1470,13 +1466,13 @@ class CLIP_MT_view(Menu):
             layout.menu("CLIP_MT_view_zoom")
 
         else:
+            layout.operator_context = 'INVOKE_REGION_PREVIEW'
+            layout.operator("clip.graph_view_all")
             if sc.view == 'GRAPH':
                 layout.operator_context = 'INVOKE_REGION_PREVIEW'
                 layout.operator("clip.graph_center_current_frame", text="Frame Selected", icon="VIEW_SELECTED")
                 layout.operator("clip.graph_view_all", icon="VIEWALL")
-
                 layout.separator()
-
                 layout.operator("view2d.zoom_in", text="Zoom In", icon="ZOOM_IN")
                 layout.operator("view2d.zoom_out", text="Zoom Out", icon="ZOOM_OUT")
                 layout.operator_context = 'INVOKE_DEFAULT'
@@ -2124,7 +2120,7 @@ class CLIP_PT_gizmo_display(Panel):
 
 classes = (
     CLIP_PT_options,
-    ALL_MT_editormenu,
+    ALL_MT_editormenu_clip,
     CLIP_UL_tracking_objects,
     CLIP_PT_proportional_edit,
     CLIP_HT_header,

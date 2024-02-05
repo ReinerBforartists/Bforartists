@@ -22,7 +22,6 @@
 #  include <io.h>
 #endif
 
-#include "AS_asset_library.h"
 #include "AS_asset_library.hh"
 #include "AS_asset_representation.hh"
 
@@ -41,6 +40,7 @@
 #include "BLI_string_utils.hh"
 #include "BLI_task.h"
 #include "BLI_threads.h"
+#include "BLI_time.h"
 #include "BLI_utildefines.h"
 #include "BLI_uuid.h"
 
@@ -53,8 +53,8 @@
 #include "BKE_context.hh"
 #include "BKE_global.h"
 #include "BKE_icons.h"
-#include "BKE_idtype.h"
-#include "BKE_lib_id.h"
+#include "BKE_idtype.hh"
+#include "BKE_lib_id.hh"
 #include "BKE_main.hh"
 #include "BKE_main_idmap.hh"
 #include "BKE_preferences.h"
@@ -67,11 +67,9 @@
 #include "ED_fileselect.hh"
 #include "ED_screen.hh"
 
-#include "IMB_imbuf.h"
-#include "IMB_imbuf_types.h"
-#include "IMB_thumbs.h"
-
-#include "PIL_time.h"
+#include "IMB_imbuf.hh"
+#include "IMB_imbuf_types.hh"
+#include "IMB_thumbs.hh"
 
 #include "WM_api.hh"
 #include "WM_types.hh"
@@ -1949,9 +1947,9 @@ void filelist_free(FileList *filelist)
   filelist->flags &= ~(FL_NEED_SORTING | FL_NEED_FILTERING);
 }
 
-AssetLibrary *filelist_asset_library(FileList *filelist)
+blender::asset_system::AssetLibrary *filelist_asset_library(FileList *filelist)
 {
-  return reinterpret_cast<::AssetLibrary *>(filelist->asset_library);
+  return filelist->asset_library;
 }
 
 void filelist_freelib(FileList *filelist)

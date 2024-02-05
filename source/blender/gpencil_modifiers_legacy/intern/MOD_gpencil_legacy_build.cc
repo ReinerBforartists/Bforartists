@@ -6,7 +6,7 @@
  * \ingroup modifiers
  */
 
-#include <algorithm> /* For `min/max`. */
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -35,7 +35,7 @@
 #include "BKE_gpencil_geom_legacy.h"
 #include "BKE_gpencil_legacy.h"
 #include "BKE_gpencil_modifier_legacy.h"
-#include "BKE_lib_query.h"
+#include "BKE_lib_query.hh"
 #include "BKE_modifier.hh"
 #include "BKE_screen.hh"
 
@@ -809,7 +809,7 @@ static void generate_geometry(GpencilModifierData *md,
 
     if (gpf->next) {
       /* Use the next frame or upper bound as end frame, whichever is lower/closer */
-      end_frame = MIN2(end_frame, gpf->next->framenum);
+      end_frame = std::min(end_frame, float(gpf->next->framenum));
     }
 
     /* Early exit if current frame is outside start/end bounds */

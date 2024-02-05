@@ -148,7 +148,7 @@ static void insert_graph_keys(bAnimContext *ac, eGraphKeys_InsertKey_Types mode)
   }
 
   /* Init key-framing flag. */
-  flag = ANIM_get_keyframing_flags(scene, true);
+  flag = ANIM_get_keyframing_flags(scene);
   KeyframeSettings settings = get_keyframe_settings(true);
   settings.keyframe_type = eBezTriple_KeyframeType(ts->keyframe_type);
 
@@ -818,7 +818,7 @@ void GRAPH_OT_delete(wmOperatorType *ot)
 
   /* Flags */
   ot->flag = OPTYPE_REGISTER | OPTYPE_UNDO;
-  WM_operator_properties_confirm_or_exec(ot);
+  /*WM_operator_properties_confirm_or_exec(ot);*/ /* BFA - we don't confirm delete*/
 }
 
 /** \} */

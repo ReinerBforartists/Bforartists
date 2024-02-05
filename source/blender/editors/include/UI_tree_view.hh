@@ -6,7 +6,7 @@
  * \ingroup editorui
  *
  * API for simple creation of tree UIs supporting typically needed features.
- * https://wiki.blender.org/wiki/Source/Interface/Views/Tree_Views
+ * https://developer.blender.org/docs/features/interface/views/tree_views/
  */
 
 #pragma once
@@ -150,7 +150,9 @@ class AbstractTreeView : public AbstractView, public TreeViewItemContainer {
   void draw_hierarchy_lines(const ARegion &region) const;
   void draw_hierarchy_lines_recursive(const ARegion &region,
                                       const TreeViewOrItem &parent,
-                                      uint pos) const;
+                                      const uint pos,
+                                      const float aspect) const;
+
   AbstractTreeViewItem *find_last_visible_descendant(const AbstractTreeViewItem &parent) const;
 };
 

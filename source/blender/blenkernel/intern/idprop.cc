@@ -24,7 +24,7 @@
 
 #include "BKE_global.h"
 #include "BKE_idprop.h"
-#include "BKE_lib_id.h"
+#include "BKE_lib_id.hh"
 
 #include "CLG_log.h"
 
@@ -57,6 +57,7 @@ static size_t idp_size_table[] = {
     sizeof(double),    /* #IDP_DOUBLE */
     0,                 /* #IDP_IDPARRAY (no fixed size). */
     sizeof(int8_t),    /* #IDP_BOOLEAN */
+    sizeof(int),       /* #IDP_ENUM */
 };
 
 /* -------------------------------------------------------------------- */

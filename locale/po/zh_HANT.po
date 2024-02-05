@@ -1,11 +1,11 @@
 
 msgid ""
 msgstr ""
-"Project-Id-Version: Blender 4.1.0 Alpha (b'd13edee3e0cc')\n"
+"Project-Id-Version: Blender 4.1.0 Alpha (b'8b1da14f0a3d')\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-08 11:04:23\n"
-"PO-Revision-Date: 2024-01-06 21:56+0000\n"
-"Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
+"POT-Creation-Date: 2024-01-22 11:04+0000\n"
+"PO-Revision-Date: 2024-01-10 17:11+0000\n"
+"Last-Translator: 楊 景貴 <issacsopp@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://translate.blender.org/projects/blender-ui/ui/zh_Hant/>\n"
 "Language: zh_HANT\n"
 "MIME-Version: 1.0\n"
@@ -16478,14 +16478,6 @@ msgid "Unit editing settings"
 msgstr "單位編輯選項"
 
 
-msgid "Audio Muted"
-msgstr "音訊靜音"
-
-
-msgid "Play back of audio from Sequence Editor will be muted"
-msgstr "序段編輯器的音訊播放會被靜音"
-
-
 msgid "Audio Scrubbing"
 msgstr "音訊隨播"
 
@@ -25075,6 +25067,10 @@ msgid "Pixelate"
 msgstr "像素格化"
 
 
+msgid "Pixel Size"
+msgstr "像素大小"
+
+
 msgid "Plane Track Deform"
 msgstr "平面軌道變形"
 
@@ -29323,6 +29319,19 @@ msgid "Duplicate"
 msgstr "製作複本"
 
 
+msgid "Extrude selected control point(s)"
+msgstr "擠出所選控制點"
+
+
+msgctxt "Operator"
+msgid "Extrude Curve and Move"
+msgstr "擠出曲線並移動"
+
+
+msgid "Extrude curve and move result"
+msgstr "擠出曲線並移動結果"
+
+
 msgid "(De)select all control points"
 msgstr "(取消)全選控制點"
 
@@ -29430,10 +29439,6 @@ msgid "Duplicate Curve"
 msgstr "製作曲線複本"
 
 
-msgid "Extrude selected control point(s)"
-msgstr "擠出所選控制點"
-
-
 msgid "Init"
 msgstr "初"
 
@@ -29464,15 +29469,6 @@ msgstr "邊線滑動"
 
 msgid "Sequence Slide"
 msgstr "序段滑動"
-
-
-msgctxt "Operator"
-msgid "Extrude Curve and Move"
-msgstr "擠出曲線並移動"
-
-
-msgid "Extrude curve and move result"
-msgstr "擠出曲線並移動結果"
 
 
 msgctxt "Operator"
@@ -30009,12 +30005,9 @@ msgid "Convert rotations to euler ZYX"
 msgstr "轉換旋轉至尤拉 ZYX"
 
 
-msgid "Ascii"
-msgstr "Ascii"
-
-
-msgid "Save the file in ASCII file format"
-msgstr "儲存檔案為 ASCII 檔案格式"
+msgctxt "Operator"
+msgid "Export PLY"
+msgstr "匯出 PLY"
 
 
 msgid "X Forward"
@@ -30061,12 +30054,28 @@ msgid "-Z Up"
 msgstr "-Z 向上"
 
 
-msgid "Batch Mode"
-msgstr "批次模式"
-
-
 msgid "Apply Modifiers"
 msgstr "套用修改器"
+
+
+msgid "Selection Only"
+msgstr "僅所選項"
+
+
+msgid "Export selected objects only"
+msgstr "僅匯出選取的物體"
+
+
+msgid "Ascii"
+msgstr "Ascii"
+
+
+msgid "Save the file in ASCII file format"
+msgstr "儲存檔案為 ASCII 檔案格式"
+
+
+msgid "Batch Mode"
+msgstr "批次模式"
 
 
 msgid "Apply the modifiers before saving"
@@ -30079,14 +30088,6 @@ msgstr "場景單位"
 
 msgid "Apply current scene's unit (as defined by unit scale) to exported data"
 msgstr "將目前場景的單位 (如單位規模所定義) 套用至匯出資料中"
-
-
-msgid "Selection Only"
-msgstr "僅所選項"
-
-
-msgid "Export selected objects only"
-msgstr "僅匯出選取的物體"
 
 
 msgctxt "Operator"
@@ -30249,6 +30250,14 @@ msgstr "通用"
 
 msgid "Include active collection and nested collections"
 msgstr "包括活動集盒和嵌入集盒"
+
+
+msgid "Material Groups"
+msgstr "材質群組"
+
+
+msgid "Smooth Groups"
+msgstr "平滑群組"
 
 
 msgctxt "Operator"
@@ -31913,6 +31922,11 @@ msgid "Emission Shader"
 msgstr "散發光著色器"
 
 
+msgctxt "Operator"
+msgid "Import PLY"
+msgstr "匯入 PLY"
+
+
 msgid "Load STL triangle mesh data"
 msgstr "匯入 STL 三角形網格資料"
 
@@ -31932,6 +31946,10 @@ msgstr "影像搜尋"
 
 msgid "Manual Orientation"
 msgstr "手動方向"
+
+
+msgid "Import OBJ groups as vertex groups"
+msgstr "將 OBJ 群組匯入為頂點群組"
 
 
 msgctxt "Operator"
@@ -36009,14 +36027,6 @@ msgid "Name filter using '*', '?' and '[abc]' unix style wildcards"
 msgstr "使用 '*'、'?' 和 '[abc]' 等 unix 樣式萬用符來過濾名稱"
 
 
-msgid "Render and display faces uniform, using Face Normals"
-msgstr "使用面法線算繪而顯示出統一的面"
-
-
-msgid "Render and display faces smooth, using interpolated Vertex Normals"
-msgstr "使用插補式頂點法線算繪而顯示出平滑的面"
-
-
 msgctxt "ID"
 msgid "Blur"
 msgstr "模糊"
@@ -36081,6 +36091,10 @@ msgstr "清除外形鍵"
 
 msgid "Clear weights for all shape keys"
 msgstr "清除所有外形鍵的權重"
+
+
+msgid "Lock action to execute on vertex groups"
+msgstr "鎖住要在頂點群組上執行的動作"
 
 
 msgctxt "Operator"
@@ -36358,10 +36372,6 @@ msgstr "變形權重的最大數目"
 msgctxt "Operator"
 msgid "Change the Lock On Vertex Groups"
 msgstr "更改頂點群組的鎖定"
-
-
-msgid "Lock action to execute on vertex groups"
-msgstr "鎖住要在頂點群組上執行的動作"
 
 
 msgid "Unlock all vertex groups if there is at least one locked group, lock all in other case"
@@ -40655,7 +40665,7 @@ msgstr "收縮/擴充"
 
 msgctxt "Operator"
 msgid "Skin Resize"
-msgstr "太陽重設大小"
+msgstr "皮膚數值大小重設"
 
 
 msgid "Scale selected vertices' skin radii"
@@ -42597,10 +42607,6 @@ msgid "Print memory statistics to the console"
 msgstr "將記憶體統計資料列印至主控臺"
 
 
-msgid "Import OBJ groups as vertex groups"
-msgstr "將 OBJ 群組匯入為頂點群組"
-
-
 msgid "Open a Blender file"
 msgstr "開啟一個 Blender 檔案"
 
@@ -42654,16 +42660,6 @@ msgstr "添加或移除操作器預置"
 
 msgid "Open a path in a file browser"
 msgstr "在檔案瀏覽器中開啟路徑"
-
-
-msgctxt "Operator"
-msgid "Export PLY"
-msgstr "匯出 PLY"
-
-
-msgctxt "Operator"
-msgid "Import PLY"
-msgstr "匯入 PLY"
 
 
 msgctxt "Operator"
@@ -43780,10 +43776,6 @@ msgstr "診斷"
 
 msgid "Helpers"
 msgstr "輔助器"
-
-
-msgid "Viscosity"
-msgstr "黏滯度"
 
 
 msgid "Indirect Lighting"
@@ -46943,10 +46935,6 @@ msgid "Vertical aspect ratio - for anamorphic or non-square pixel output"
 msgstr "垂直寬長比 - 用於歪像或非四角形像素輸出"
 
 
-msgid "Pixel Size"
-msgstr "像素大小"
-
-
 msgid "Percentage scale for render resolution"
 msgstr "算繪解析度的百分比縮放"
 
@@ -47577,6 +47565,10 @@ msgstr "互動半徑"
 
 msgid "Fluid interaction radius"
 msgstr "流體互動半徑"
+
+
+msgid "Viscosity"
+msgstr "黏滯度"
 
 
 msgid "Linear viscosity"
@@ -54398,10 +54390,6 @@ msgid "Online Manual"
 msgstr "線上手冊"
 
 
-msgid "Inputs:"
-msgstr "輸入："
-
-
 msgid "Named Attributes"
 msgstr "具名的屬性"
 
@@ -56683,38 +56671,6 @@ msgid "Internal error!"
 msgstr "內部錯誤！"
 
 
-msgid "Shortcut: %s"
-msgstr "快捷鍵：%s"
-
-
-msgid "Python: %s"
-msgstr "Python：%s"
-
-
-msgid "Value: %s"
-msgstr "值：%s"
-
-
-msgid "Radians: %f"
-msgstr "弧度：%f"
-
-
-msgid "Expression: %s"
-msgstr "表述式：%s"
-
-
-msgid "Library: %s"
-msgstr "函式庫：%s"
-
-
-msgid "Disabled: %s"
-msgstr "已停用：%s"
-
-
-msgid "Python: %s.%s"
-msgstr "Python：%s.%s"
-
-
 msgctxt "Operator"
 msgid "Drag"
 msgstr "拖曳"
@@ -57051,14 +57007,6 @@ msgstr "無法覆寫匯出檔"
 
 msgid "Export Options"
 msgstr "匯出資料選項"
-
-
-msgid "Material Groups"
-msgstr "材質群組"
-
-
-msgid "Smooth Groups"
-msgstr "平滑群組"
 
 
 msgid "Rigging"
@@ -58046,6 +57994,14 @@ msgid "Driven Property:"
 msgstr "被驅動屬性:"
 
 
+msgid "Invalid variable name, click here for details"
+msgstr "無效的變數名稱，請點按此處取得詳細資料"
+
+
+msgid "Delete target variable"
+msgstr "刪除目標變數"
+
+
 msgid "F-Curve only has F-Modifiers"
 msgstr "F 曲線僅有 F 修改器"
 
@@ -58092,14 +58048,6 @@ msgstr "提示：為程序性動畫改用 F 曲線"
 
 msgid "F-Modifiers can generate curves for those too"
 msgstr "F 修改器也可以為其生成曲線"
-
-
-msgid "Invalid variable name, click here for details"
-msgstr "無效的變數名稱，請點按此處取得詳細資料"
-
-
-msgid "Delete target variable"
-msgstr "刪除目標變數"
 
 
 msgctxt "Operator"
@@ -58171,12 +58119,12 @@ msgid "Missing %s%s%s component(s) of euler rotation for ID='%s' and RNA-Path='%
 msgstr "ID='%s' 與 RNA-Path='%s' 的尤拉旋轉遺失 %s%s%s 部份"
 
 
-msgid "Decimate Keyframes"
-msgstr "削減鍵幀"
-
-
 msgid "Decimate F-Curves by specifying how much they can deviate from the original curve"
 msgstr "利用指定偏離原始曲線的程度來削減函數曲線"
+
+
+msgid "Decimate Keyframes"
+msgstr "削減鍵幀"
 
 
 msgid "Select Slot"
@@ -58367,10 +58315,6 @@ msgid "Disconnect"
 msgstr "斷開連接"
 
 
-msgid "Dependency Loop"
-msgstr "依賴迴圈"
-
-
 msgid "Add node to input"
 msgstr "添加節點到輸入"
 
@@ -58381,6 +58325,10 @@ msgstr "移除連接至該輸入的節點"
 
 msgid "Disconnect nodes connected to the input"
 msgstr "斷開連接至該輸入的節點"
+
+
+msgid "Dependency Loop"
+msgstr "依賴迴圈"
 
 
 msgid "Use view layer for rendering"
@@ -60230,12 +60178,12 @@ msgid "Rim"
 msgstr "邊框"
 
 
-msgid "Input pending "
-msgstr "等候輸入 "
-
-
 msgid "Blender File View"
 msgstr "Blender 檔案檢視"
+
+
+msgid "Input pending "
+msgstr "等候輸入 "
 
 
 msgid "Missing 'window' in context"
@@ -60254,6 +60202,18 @@ msgid "Don't Save"
 msgstr "不要儲存"
 
 
+msgid "Reload file with execution of Python scripts enabled"
+msgstr "重新載入檔案並啟用 Python 命令稿執行"
+
+
+msgid "Enable scripts"
+msgstr "啟用命令稿"
+
+
+msgid "Continue using file without Python scripts"
+msgstr "繼續使用檔案而不用 Python 命令稿"
+
+
 msgid "unable to open the file"
 msgstr "無法開啟檔案"
 
@@ -60268,18 +60228,6 @@ msgstr "這可能導致預期外的行為"
 
 msgid "Permanently allow execution of scripts"
 msgstr "永遠允許執行命令稿"
-
-
-msgid "Reload file with execution of Python scripts enabled"
-msgstr "重新載入檔案並啟用 Python 命令稿執行"
-
-
-msgid "Enable scripts"
-msgstr "啟用命令稿"
-
-
-msgid "Continue using file without Python scripts"
-msgstr "繼續使用檔案而不用 Python 命令稿"
 
 
 msgid "Save changes before closing?"

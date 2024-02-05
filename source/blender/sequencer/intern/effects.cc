@@ -1,5 +1,5 @@
 /* SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.
- * SPDX-FileCopyrightText: 2003-2009 Blender Authors
+ * SPDX-FileCopyrightText: 2003-2024 Blender Authors
  * SPDX-FileCopyrightText: 2005-2006 Peter Schlaile <peter [at] schlaile [dot] de>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later */
@@ -34,13 +34,14 @@
 #include "DNA_vfont_types.h"
 
 #include "BKE_fcurve.h"
-#include "BKE_lib_id.h"
+#include "BKE_lib_id.hh"
 #include "BKE_main.hh"
 
-#include "IMB_colormanagement.h"
-#include "IMB_imbuf.h"
-#include "IMB_imbuf_types.h"
-#include "IMB_metadata.h"
+#include "IMB_colormanagement.hh"
+#include "IMB_imbuf.hh"
+#include "IMB_imbuf_types.hh"
+#include "IMB_interp.hh"
+#include "IMB_metadata.hh"
 
 #include "BLI_math_color_blend.h"
 
@@ -64,7 +65,7 @@
 #include "strip_time.hh"
 #include "utils.hh"
 
-using blender::float4;
+using namespace blender;
 
 static SeqEffectHandle get_sequence_effect_impl(int seq_type);
 
@@ -243,6 +244,16 @@ static void init_alpha_over_or_under(Sequence *seq)
   seq->seq1 = seq2;
 }
 
+static bool alpha_opaque(uchar alpha)
+{
+  return alpha == 255;
+}
+
+static bool alpha_opaque(float alpha)
+{
+  return alpha >= 1.0f;
+}
+
 /* dst = src1 over src2 (alpha from src1) */
 template<typename T>
 static void do_alphaover_effect(
@@ -253,23 +264,25 @@ static void do_alphaover_effect(
     return;
   }
 
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
+  for (int pixel_idx = 0; pixel_idx < width * height; pixel_idx++) {
+    if (src1[3] <= 0.0f) {
+      /* Alpha of zero. No color addition will happen as the colors are pre-multiplied. */
+      memcpy(dst, src2, sizeof(T) * 4);
+    }
+    else if (fac == 1.0f && alpha_opaque(src1[3])) {
+      /* No change to `src1` as `fac == 1` and fully opaque. */
+      memcpy(dst, src1, sizeof(T) * 4);
+    }
+    else {
       float4 col1 = load_premul_pixel(src1);
       float mfac = 1.0f - fac * col1.w;
-
-      if (mfac <= 0.0f) {
-        memcpy(dst, src1, sizeof(T) * 4);
-      }
-      else {
-        float4 col2 = load_premul_pixel(src2);
-        float4 col = fac * col1 + mfac * col2;
-        store_premul_pixel(col, dst);
-      }
-      src1 += 4;
-      src2 += 4;
-      dst += 4;
+      float4 col2 = load_premul_pixel(src2);
+      float4 col = fac * col1 + mfac * col2;
+      store_premul_pixel(col, dst);
     }
+    src1 += 4;
+    src2 += 4;
+    dst += 4;
   }
 }
 
@@ -318,25 +331,23 @@ static void do_alphaunder_effect(
     return;
   }
 
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      float4 col2 = load_premul_pixel(src2);
-      if (col2.w <= 0.0f) {
-        memcpy(dst, src1, sizeof(T) * 4);
-      }
-      else if (col2.w >= 1.0f || fac <= 0.0f) {
-        memcpy(dst, src2, sizeof(T) * 4);
-      }
-      else {
-        float mfac = fac * (1.0f - col2.w);
-        float4 col1 = load_premul_pixel(src1);
-        float4 col = mfac * col1 + col2;
-        store_premul_pixel(col, dst);
-      }
-      src1 += 4;
-      src2 += 4;
-      dst += 4;
+  for (int pixel_idx = 0; pixel_idx < width * height; pixel_idx++) {
+    if (src2[3] <= 0.0f) {
+      memcpy(dst, src1, sizeof(T) * 4);
     }
+    else if (alpha_opaque(src2[3]) || fac <= 0.0f) {
+      memcpy(dst, src2, sizeof(T) * 4);
+    }
+    else {
+      float4 col2 = load_premul_pixel(src2);
+      float mfac = fac * (1.0f - col2.w);
+      float4 col1 = load_premul_pixel(src1);
+      float4 col = mfac * col1 + col2;
+      store_premul_pixel(col, dst);
+    }
+    src1 += 4;
+    src2 += 4;
+    dst += 4;
   }
 }
 
@@ -1526,7 +1537,7 @@ static void transform_image(int x,
                             int y,
                             int start_line,
                             int total_lines,
-                            ImBuf *ibuf1,
+                            ImBuf *ibuf,
                             ImBuf *out,
                             float scale_x,
                             float scale_y,
@@ -1539,6 +1550,10 @@ static void transform_image(int x,
   float s = sinf(rotate);
   float c = cosf(rotate);
 
+  float4 *dst_fl = reinterpret_cast<float4 *>(out->float_buffer.data);
+  uchar4 *dst_ch = reinterpret_cast<uchar4 *>(out->byte_buffer.data);
+
+  size_t offset = size_t(x) * start_line;
   for (int yi = start_line; yi < start_line + total_lines; yi++) {
     for (int xi = 0; xi < x; xi++) {
       /* Translate point. */
@@ -1560,15 +1575,31 @@ static void transform_image(int x,
       /* interpolate */
       switch (interpolation) {
         case 0:
-          nearest_interpolation(ibuf1, out, xt, yt, xi, yi);
+          if (dst_fl) {
+            dst_fl[offset] = imbuf::interpolate_nearest_fl(ibuf, xt, yt);
+          }
+          else {
+            dst_ch[offset] = imbuf::interpolate_nearest_byte(ibuf, xt, yt);
+          }
           break;
         case 1:
-          bilinear_interpolation(ibuf1, out, xt, yt, xi, yi);
+          if (dst_fl) {
+            dst_fl[offset] = imbuf::interpolate_bilinear_fl(ibuf, xt, yt);
+          }
+          else {
+            dst_ch[offset] = imbuf::interpolate_bilinear_byte(ibuf, xt, yt);
+          }
           break;
         case 2:
-          bicubic_interpolation(ibuf1, out, xt, yt, xi, yi);
+          if (dst_fl) {
+            dst_fl[offset] = imbuf::interpolate_cubic_bspline_fl(ibuf, xt, yt);
+          }
+          else {
+            dst_ch[offset] = imbuf::interpolate_cubic_bspline_byte(ibuf, xt, yt);
+          }
           break;
       }
+      offset++;
     }
   }
 }

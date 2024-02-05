@@ -11,7 +11,7 @@
 #include "ply_data.hh"
 
 #include "BKE_attribute.hh"
-#include "BKE_lib_id.h"
+#include "BKE_lib_id.hh"
 #include "BKE_mesh.hh"
 #include "BKE_object.hh"
 #include "BLI_hash.hh"
@@ -78,7 +78,7 @@ struct uv_vertex_key {
 
   uint64_t hash() const
   {
-    return get_default_hash_3(uv.x, uv.y, vertex_index);
+    return get_default_hash(uv.x, uv.y, vertex_index);
   }
 };
 

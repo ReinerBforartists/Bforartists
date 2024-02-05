@@ -335,6 +335,11 @@ int BLF_default(void);
  */
 void BLF_draw_default(float x, float y, float z, const char *str, size_t str_len) ATTR_NONNULL();
 /**
+ * As above but with a very contrasting dark shadow.
+ */
+void BLF_draw_default_shadowed(float x, float y, float z, const char *str, size_t str_len)
+    ATTR_NONNULL();
+/**
  * Set size and DPI, and return default font ID.
  */
 int BLF_set_default(void);
@@ -375,7 +380,11 @@ enum {
   BLF_BAD_FONT = 1 << 16,
   /** This font is managed by the FreeType cache subsystem. */
   BLF_CACHED = 1 << 17,
-  /** At small sizes glyphs are rendered at multiple sub-pixel positions. */
+  /**
+   * At small sizes glyphs are rendered at multiple sub-pixel positions.
+   *
+   * \note Can be checked without checking #BLF_MONOSPACED which can be assumed to be disabled.
+   */
   BLF_RENDER_SUBPIXELAA = 1 << 18,
 };
 

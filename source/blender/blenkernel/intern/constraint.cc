@@ -9,6 +9,7 @@
 /* Allow using deprecated functionality for .blend file I/O. */
 #define DNA_DEPRECATED_ALLOW
 
+#include <algorithm>
 #include <cfloat>
 #include <cmath>
 #include <cstddef>
@@ -58,8 +59,8 @@
 #include "BKE_fcurve_driver.h"
 #include "BKE_global.h"
 #include "BKE_idprop.h"
-#include "BKE_lib_id.h"
-#include "BKE_lib_query.h"
+#include "BKE_lib_id.hh"
+#include "BKE_lib_query.hh"
 #include "BKE_mesh.hh"
 #include "BKE_mesh_runtime.hh"
 #include "BKE_movieclip.h"
@@ -3552,7 +3553,7 @@ static void stretchto_evaluate(bConstraint *con, bConstraintOb *cob, ListBase *t
     }
     if (bulge < 1.0f) {
       if (data->flag & STRETCHTOCON_USE_BULGE_MIN) {
-        float bulge_min = CLAMPIS(data->bulge_min, 0.0f, 1.0f);
+        float bulge_min = std::clamp(data->bulge_min, 0.0f, 1.0f);
         float hard = max_ff(bulge, bulge_min);
 
         float range = 1.0f - bulge_min;

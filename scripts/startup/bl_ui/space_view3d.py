@@ -760,7 +760,7 @@ class VIEW3D_HT_header(Header):
         shading = view.shading
         overlay = view.overlay
 
-        ALL_MT_editormenu.draw_hidden(context, layout)  # bfa - show hide the editormenu
+        ALL_MT_editormenu_view3d.draw_hidden(context, layout)  # bfa - show hide the editormenu, editor suffix is needed.
 
         obj = context.active_object
         mode_string = context.mode
@@ -1091,8 +1091,8 @@ class VIEW3D_HT_header(Header):
         sub.popover(panel="VIEW3D_PT_shading", text="")
 
 
-# BFA - show hide the editormenu
-class ALL_MT_editormenu(Menu):
+# bfa - show hide the editormenu, editor suffix is needed.
+class ALL_MT_editormenu_view3d(Menu):
     bl_label = ""
 
     def draw(self, context):
@@ -3178,7 +3178,6 @@ class VIEW3D_MT_object(Menu):
         layout.separator()
 
         layout.menu("VIEW3D_MT_object_asset")
-        # layout.menu("VIEW3D_MT_object_collection") #BFA - Redundant operators, now the UX is exclusive to the outliner
 
         layout.separator()
 
@@ -3194,6 +3193,7 @@ class VIEW3D_MT_object(Menu):
         # ...This is a minimal UX of layout.menu("VIEW3D_MT_object_collection")
         layout.operator_context = 'INVOKE_REGION_WIN'
         layout.operator("object.move_to_collection", icon='GROUP')
+        layout.menu("VIEW3D_MT_object_collection") #BFA - Could be redundant operators, the UX was exclusive to the outliner
 
         # shading just for mesh and curve objects
         if obj is None:
@@ -3368,11 +3368,10 @@ class VIEW3D_MT_object_animation(Menu):
         layout = self.layout
 
         layout.operator("anim.keyframe_insert", text="Insert Keyframe", icon='KEYFRAMES_INSERT')
-        layout.operator("anim.keyframe_insert_menu", text="Insert Keyframe with Keying Set", icon='KEYFRAMES_INSERT')
         layout.operator("anim.keyframe_delete_v3d", text="Delete Keyframes", icon='KEYFRAMES_REMOVE')
         layout.operator("anim.keyframe_clear_v3d", text="Clear Keyframes", icon='KEYFRAMES_CLEAR')
         layout.operator("anim.keying_set_active_set", text="Change Keying Set", icon='KEYINGSET')
-
+        layout.operator("anim.keyframe_insert_menu", text="Insert Keyframe with Keying Set", icon='KEY_HLT').always_prompt = True
         layout.separator()
 
         layout.operator("nla.bake", text="Bake Action", icon='BAKE_ACTION')
@@ -3652,7 +3651,7 @@ class VIEW3D_MT_object_context_menu(Menu):
         layout.separator()
 
         layout.operator("anim.keyframe_insert", text="Insert Keyframe", icon='KEYFRAMES_INSERT')
-        layout.operator("anim.keyframe_insert_menu", text="Insert Keyframe with Keying Set", icon='KEYFRAMES_INSERT')
+        layout.operator("anim.keyframe_insert_menu", text="Insert Keyframe with Keying Set", icon='KEY_HLT').always_prompt = True
 
         layout.separator()
 
@@ -3813,7 +3812,7 @@ class VIEW3D_MT_object_collection(Menu):
     def draw(self, _context):
         layout = self.layout
 
-        layout.operator("object.move_to_collection", icon='GROUP')
+        #layout.operator("object.move_to_collection", icon='GROUP') #BFA - Double entry
         layout.operator("object.link_to_collection", icon='GROUP')
 
         layout.separator()
@@ -4820,6 +4819,10 @@ class VIEW3D_MT_pose(Menu):
         layout.separator()
 
         layout.menu("VIEW3D_MT_pose_motion")
+
+        layout.separator()
+
+        layout.operator("armature.move_to_collection", text="Move to Bone Collection", icon="GROUP_BONE") #BFA - added for consistency
         layout.menu("VIEW3D_MT_bone_collections")
 
         layout.separator()
@@ -4920,14 +4923,13 @@ class VIEW3D_MT_bone_collections(Menu):
     def draw(self, context):
         layout = self.layout
 
-        layout.operator("armature.move_to_collection", icon="GROUP_BONE")
-        layout.operator("armature.assign_to_collection", icon="ADD")
+        layout.operator("armature.assign_to_collection", text="Add", icon="COLLECTION_BONE_ADD")  #BFA - shortned label
 
         layout.separator()
 
-        layout.operator("armature.collection_show_all")
-        props = layout.operator("armature.collection_create_and_assign",
-                                text="Assign to New Collection",
+        layout.operator("armature.collection_show_all", icon="SHOW_UNSELECTED")
+        props = layout.operator("armature.collection_create_and_assign", #BFA - shortned label
+                                text="Assign to New",
                                 icon='COLLECTION_BONE_NEW')
         props.name = "New Collection"
 
@@ -5005,7 +5007,7 @@ class VIEW3D_MT_pose_context_menu(Menu):
         layout.operator_context = 'INVOKE_REGION_WIN'
 
         layout.operator("anim.keyframe_insert", text="Insert Keyframe", icon='KEYFRAMES_INSERT')
-        layout.operator("anim.keyframe_insert_menu", text="Insert Keyframe with Keying Set", icon='KEYFRAMES_INSERT')
+        layout.operator("anim.keyframe_insert_menu", text="Insert Keyframe with Keying Set", icon='KEY_HLT').always_prompt = True
 
         layout.separator()
 
@@ -5031,6 +5033,10 @@ class VIEW3D_MT_pose_context_menu(Menu):
         layout.operator("pose.paths_calculate", text="Calculate Motion Paths", icon='MOTIONPATHS_CALCULATE')
         layout.operator("pose.paths_clear", text="Clear Motion Paths", icon='MOTIONPATHS_CLEAR')
         layout.operator("pose.paths_update", text="Update Armature Motion Paths", icon="MOTIONPATHS_UPDATE")
+
+        layout.separator()
+
+        layout.operator("armature.move_to_collection", text="Move to Bone Collection", icon="GROUP_BONE") #BFA - added to context menu
 
         layout.separator()
 
@@ -6323,6 +6329,7 @@ class VIEW3D_MT_edit_font(Menu):
 
         layout.separator()
 
+        layout.operator("FONT_OT_text_insert_unicode")
         layout.menu("VIEW3D_MT_edit_font_chars")
         layout.menu("VIEW3D_MT_edit_font_move")  # bfa menu
 
@@ -6552,6 +6559,10 @@ class VIEW3D_MT_armature_context_menu(Menu):
         # Remove
         layout.operator("armature.split", icon="SPLIT")
         layout.operator("armature.separate", icon="SEPARATE")
+
+        layout.separator()
+
+        layout.operator("armature.move_to_collection", text="Move to Bone Collection", icon="GROUP_BONE") # BFA - added to context menu
 
         layout.separator()
 
@@ -10537,7 +10548,7 @@ class VIEW3D_AST_sculpt_brushes(bpy.types.AssetShelf):
 classes = (
     VIEW3D_HT_header,
     VIEW3D_HT_tool_header,
-    ALL_MT_editormenu,  # bfa menu
+    ALL_MT_editormenu_view3d,  # bfa menu
     VIEW3D_MT_editor_menus,
     VIEW3D_MT_transform,
     VIEW3D_MT_transform_object,

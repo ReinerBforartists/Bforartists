@@ -34,7 +34,7 @@
 #include "WM_types.hh"
 
 #include "ED_asset.hh"
-#include "ED_asset_shelf.h"
+#include "ED_asset_shelf.hh"
 #include "ED_buttons.hh"
 #include "ED_screen.hh"
 #include "ED_screen_types.hh"
@@ -49,8 +49,8 @@
 
 #include "BLF_api.h"
 
-#include "IMB_imbuf_types.h"
-#include "IMB_metadata.h"
+#include "IMB_imbuf_types.hh"
+#include "IMB_metadata.hh"
 
 #include "UI_interface.hh"
 #include "UI_interface_icons.hh"
@@ -1318,14 +1318,14 @@ bool ED_region_is_overlap(int spacetype, int regiontype)
         bTheme *theme = UI_GetTheme();
         return theme->space_view3d.header[3] != 255;
       }
-      else if (ELEM(regiontype,
-                    RGN_TYPE_TOOLS,
-                    RGN_TYPE_UI,
-                    RGN_TYPE_TOOL_PROPS,
-                    RGN_TYPE_FOOTER,
-                    RGN_TYPE_TOOL_HEADER,
-                    RGN_TYPE_ASSET_SHELF,
-                    RGN_TYPE_ASSET_SHELF_HEADER))
+      if (ELEM(regiontype,
+               RGN_TYPE_TOOLS,
+               RGN_TYPE_UI,
+               RGN_TYPE_TOOL_PROPS,
+               RGN_TYPE_FOOTER,
+               RGN_TYPE_TOOL_HEADER,
+               RGN_TYPE_ASSET_SHELF,
+               RGN_TYPE_ASSET_SHELF_HEADER))
       {
         return true;
       }
@@ -1349,6 +1349,7 @@ bool ED_region_is_overlap(int spacetype, int regiontype)
 static void region_rect_recursive(
     ScrArea *area, ARegion *region, rcti *remainder, rcti *overlap_remainder, int quad)
 {
+  using namespace blender::ed;
   rcti *remainder_prev = remainder;
 
   if (region == nullptr) {
@@ -1410,10 +1411,10 @@ static void region_rect_recursive(
   }
   else if (region->regiontype == RGN_TYPE_ASSET_SHELF) {
     prefsizey = region->sizey > 1 ? (UI_SCALE_FAC * (region->sizey + 0.5f)) :
-                                    ED_asset_shelf_region_prefsizey();
+                                    asset::shelf::region_prefsizey();
   }
   else if (region->regiontype == RGN_TYPE_ASSET_SHELF_HEADER) {
-    prefsizey = ED_asset_shelf_header_region_size();
+    prefsizey = asset::shelf::header_region_size();
   }
   else if (ED_area_is_global(area)) {
     prefsizey = ED_region_global_size_y();

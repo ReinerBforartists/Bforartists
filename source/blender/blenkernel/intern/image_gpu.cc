@@ -13,13 +13,14 @@
 #include "BLI_linklist.h"
 #include "BLI_listbase.h"
 #include "BLI_threads.h"
+#include "BLI_time.h"
 
 #include "DNA_image_types.h"
 #include "DNA_userdef_types.h"
 
-#include "IMB_colormanagement.h"
-#include "IMB_imbuf.h"
-#include "IMB_imbuf_types.h"
+#include "IMB_colormanagement.hh"
+#include "IMB_imbuf.hh"
+#include "IMB_imbuf_types.hh"
 
 #include "BKE_global.h"
 #include "BKE_image.h"
@@ -29,8 +30,6 @@
 #include "GPU_capabilities.h"
 #include "GPU_state.h"
 #include "GPU_texture.h"
-
-#include "PIL_time.h"
 
 using namespace blender::bke::image::partial_update;
 
@@ -471,14 +470,14 @@ GPUTexture *BKE_image_get_gpu_texture(Image *image, ImageUser *iuser, ImBuf *ibu
   return image_get_gpu_texture(image, iuser, ibuf, TEXTARGET_2D);
 }
 
-GPUTexture *BKE_image_get_gpu_tiles(Image *image, ImageUser *iuser, ImBuf *ibuf)
+GPUTexture *BKE_image_get_gpu_tiles(Image *image, ImageUser *iuser)
 {
-  return image_get_gpu_texture(image, iuser, ibuf, TEXTARGET_2D_ARRAY);
+  return image_get_gpu_texture(image, iuser, nullptr, TEXTARGET_2D_ARRAY);
 }
 
-GPUTexture *BKE_image_get_gpu_tilemap(Image *image, ImageUser *iuser, ImBuf *ibuf)
+GPUTexture *BKE_image_get_gpu_tilemap(Image *image, ImageUser *iuser)
 {
-  return image_get_gpu_texture(image, iuser, ibuf, TEXTARGET_TILE_MAPPING);
+  return image_get_gpu_texture(image, iuser, nullptr, TEXTARGET_TILE_MAPPING);
 }
 
 /** \} */
@@ -572,7 +571,7 @@ void BKE_image_free_anim_gputextures(Main *bmain)
 void BKE_image_free_old_gputextures(Main *bmain)
 {
   static int lasttime = 0;
-  int ctime = int(PIL_check_seconds_timer());
+  int ctime = int(BLI_check_seconds_timer());
 
   /*
    * Run garbage collector once for every collecting period of time

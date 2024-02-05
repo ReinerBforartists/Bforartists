@@ -16,8 +16,8 @@
 
 #include "BKE_context.hh"
 #include "BKE_global.h"
-#include "BKE_lib_id.h"
-#include "BKE_lib_query.h"
+#include "BKE_lib_id.hh"
+#include "BKE_lib_query.hh"
 #include "BKE_lib_remap.hh"
 #include "BKE_screen.hh"
 
@@ -91,7 +91,7 @@ static SpaceLink *text_create(const ScrArea * /*area*/, const Scene * /*scene*/)
 static void text_free(SpaceLink *sl)
 {
   SpaceText *stext = (SpaceText *)sl;
-  text_free_caches(stext);
+  space_text_free_caches(stext);
   MEM_delete(stext->runtime);
   stext->text = nullptr;
 }
@@ -135,7 +135,7 @@ static void text_listener(const wmSpaceTypeListenerParams *params)
       switch (wmn->action) {
         case NA_EDITED:
           if (st->text) {
-            text_drawcache_tag_update(st, true);
+            space_text_drawcache_tag_update(st, true);
             text_update_edited(st->text);
           }
 
@@ -307,7 +307,7 @@ static bool text_drop_poll(bContext * /*C*/, wmDrag *drag, const wmEvent * /*eve
 {
   if (drag->type == WM_DRAG_PATH) {
     const eFileSel_File_Types file_type = eFileSel_File_Types(WM_drag_get_path_file_type(drag));
-    if (ELEM(file_type, 0, FILE_TYPE_PYSCRIPT, FILE_TYPE_TEXT)) {
+    if (ELEM(file_type, FILE_TYPE_PYSCRIPT, FILE_TYPE_TEXT)) {
       return true;
     }
   }

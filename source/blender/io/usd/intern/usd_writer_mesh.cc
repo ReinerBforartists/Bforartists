@@ -30,7 +30,7 @@
 #include "BKE_customdata.hh"
 #include "BKE_deform.h"
 #include "BKE_key.h"
-#include "BKE_lib_id.h"
+#include "BKE_lib_id.hh"
 #include "BKE_material.h"
 #include "BKE_mesh.hh"
 #include "BKE_mesh_runtime.hh"
@@ -49,8 +49,6 @@
 #include "DNA_particle_types.h"
 
 #include "WM_api.hh"
-
-#include <iostream>
 
 #include "CLG_log.h"
 static CLG_LogRef LOG = {"io.usd"};

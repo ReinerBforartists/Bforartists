@@ -5,16 +5,16 @@
 
 #include "MEM_guardedalloc.h"
 
-#include "BKE_appdir.h"
+#include "BKE_appdir.hh"
 #include "BKE_blender.h"
 #include "BKE_callbacks.h"
 #include "BKE_context.hh"
 #include "BKE_global.h"
-#include "BKE_idtype.h"
+#include "BKE_idtype.hh"
 #include "BKE_image.h"
-#include "BKE_layer.h"
+#include "BKE_layer.hh"
 #include "BKE_main.hh"
-#include "BKE_mball_tessellate.h"
+#include "BKE_mball_tessellate.hh"
 #include "BKE_modifier.hh"
 #include "BKE_node.hh"
 #include "BKE_scene.h"
@@ -33,7 +33,7 @@
 #include "DNA_genfile.h" /* for DNA_sdna_current_init() */
 #include "DNA_windowmanager_types.h"
 
-#include "IMB_imbuf.h"
+#include "IMB_imbuf.hh"
 
 #include "ED_datafiles.h"
 

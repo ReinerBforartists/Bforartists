@@ -30,7 +30,7 @@
 #include "BKE_deform.h"
 #include "BKE_fcurve.h"
 #include "BKE_key.h"
-#include "BKE_lib_id.h"
+#include "BKE_lib_id.hh"
 #include "BKE_mesh.hh"
 #include "BKE_mesh_runtime.hh"
 #include "BKE_modifier.hh"
@@ -46,7 +46,6 @@
 #include "ED_keyframing.hh"
 #include "ED_mesh.hh"
 
-#include <iostream>
 #include <string>
 #include <vector>
 

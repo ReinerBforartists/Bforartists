@@ -686,7 +686,7 @@ def fbx_data_camera_elements(root, cam_obj, scene_data):
     elem_props_template_set(tmpl, props, "p_double", b"SafeAreaAspectRatio", aspect)
     # Depth of field and Focus distance.
     elem_props_template_set(tmpl, props, "p_bool", b"UseDepthOfField", cam_data.dof.use_dof)
-    elem_props_template_set(tmpl, props, "p_double", b"FocusDistance", cam_data.dof.focus_distance * 1000 * gscale)
+    elem_props_template_set(tmpl, props, "p_double", b"FocusDistance", cam_data.dof.focus_distance * gscale)
     # Default to perspective camera.
     elem_props_template_set(tmpl, props, "p_enum", b"CameraProjectionType", 1 if cam_data.type == 'ORTHO' else 0)
     elem_props_template_set(tmpl, props, "p_double", b"OrthoZoom", cam_data.ortho_scale)
@@ -2753,7 +2753,7 @@ def fbx_data_from_scene(scene, depsgraph, settings):
                 _cos = MESH_ATTRIBUTE_POSITION.to_ndarray(me.attributes)
             else:
                 _cos = np.empty(len(me.vertices) * 3, dtype=co_bl_dtype)
-                shape_key.data.foreach_get("co", _cos)
+                shape_key.points.foreach_get("co", _cos)
             return vcos_transformed(_cos, geom_mat_co, co_fbx_dtype)
 
         for shape in me.shape_keys.key_blocks[1:]:

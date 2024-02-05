@@ -163,7 +163,7 @@ class SEQUENCER_HT_header(Header):
 
         st = context.space_data
 
-        ALL_MT_editormenu.draw_hidden(context, layout) # bfa - show hide the editormenu
+        ALL_MT_editormenu_sequencer.draw_hidden(context, layout) # bfa - show hide the editormenu, editor suffix is needed.
 
         layout.prop(st, "view_type", text="")
         SEQUENCER_MT_editor_menus.draw_collapsible(context, layout)
@@ -308,8 +308,8 @@ class SEQUENCER_PT_sequencer_overlay(Panel):
         layout.row().prop(overlay_settings, "waveform_display_style", expand=True)
 
 
-# bfa - show hide the editormenu
-class ALL_MT_editormenu(Menu):
+# bfa - show hide the editormenu, editor suffix is needed.
+class ALL_MT_editormenu_sequencer(Menu):
     bl_label = ""
 
     def draw(self, context):
@@ -456,7 +456,6 @@ class SEQUENCER_MT_view(Menu):
         layout.prop(st, "show_region_tool_header")
 
         layout.operator_context = 'INVOKE_DEFAULT'
-
         if is_sequencer_view:
             layout.prop(st, "show_region_hud")
             layout.prop(st, "show_region_channels")
@@ -469,6 +468,9 @@ class SEQUENCER_MT_view(Menu):
 
         layout.separator()
 
+        layout.operator_context = 'INVOKE_REGION_WIN'
+        layout.operator("sequencer.refresh_all", icon='FILE_REFRESH', text="Refresh All")
+        layout.operator_context = 'INVOKE_DEFAULT'
         layout.separator()
 
         layout.operator_context = 'INVOKE_REGION_WIN'
@@ -500,9 +502,7 @@ class SEQUENCER_MT_view(Menu):
             layout.operator("sequencer.view_selected", text = "Frame Selected", icon='VIEW_SELECTED')
 
             layout.separator()
-
             layout.menu("SEQUENCER_MT_proxy")
-
             layout.operator_context = 'INVOKE_DEFAULT'
 
         layout.separator()
@@ -517,7 +517,6 @@ class SEQUENCER_MT_view(Menu):
         props = layout.operator("render.opengl", text="Sequence Render Animation", icon='RENDER_ANIMATION')
         props.animation = True
         props.sequencer = True
-
         layout.separator()
 
         # Note that the context is needed for the shortcut to display properly.
@@ -1026,9 +1025,9 @@ class SEQUENCER_MT_strip_retiming(Menu):
                 layout.separator() #BFA - added seperator
 
                 layout.operator("sequencer.retiming_key_add", icon='KEYFRAMES_INSERT')
-                layout.operator("sequencer.retiming_freeze_frame_add", icon='KEYTYPE_MOVING_HOLD_VEC')
+                layout.operator("sequencer.retiming_add_freeze_frame_slide", icon='KEYTYPE_MOVING_HOLD_VEC')
                 col = layout.column()
-                col.operator("sequencer.retiming_transition_add", icon='NODE_CURVE_TIME')
+                col.operator("sequencer.retiming_add_transition_slide", icon='NODE_CURVE_TIME')
                 col.enabled = is_retiming
 
                 layout.separator()
@@ -1197,7 +1196,7 @@ class SEQUENCER_MT_retiming(Menu):
         layout.operator_context = 'INVOKE_REGION_WIN'
 
         layout.operator("sequencer.retiming_key_add", icon='KEYFRAMES_INSERT')
-        layout.operator("sequencer.retiming_freeze_frame_add", icon='KEYTYPE_MOVING_HOLD_VEC')
+        layout.operator("sequencer.retiming_add_freeze_frame_slide", icon='KEYTYPE_MOVING_HOLD_VEC')
 
 
 class SEQUENCER_MT_context_menu(Menu):
@@ -1312,8 +1311,8 @@ class SEQUENCER_MT_context_menu(Menu):
             layout.operator("sequencer.retiming_segment_speed_set", icon='SET_TIME')
             layout.separator()
 
-            layout.operator("sequencer.retiming_freeze_frame_add", icon='KEYTYPE_MOVING_HOLD_VEC')
-            layout.operator("sequencer.retiming_transition_add", icon='NODE_CURVE_TIME')
+            layout.operator("sequencer.retiming_add_freeze_frame_slide", icon='KEYTYPE_MOVING_HOLD_VEC')
+            layout.operator("sequencer.retiming_add_transition_slide", icon='NODE_CURVE_TIME')
 
     def draw(self, context):
         ed = context.scene.sequence_editor
@@ -3042,7 +3041,7 @@ class SEQUENCER_MT_fades_add(Menu):
 
 
 classes = (
-    ALL_MT_editormenu,
+    ALL_MT_editormenu_sequencer,
     SEQUENCER_MT_change,
     SEQUENCER_HT_tool_header,
     SEQUENCER_HT_header,

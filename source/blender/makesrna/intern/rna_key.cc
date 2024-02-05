@@ -38,6 +38,7 @@ const EnumPropertyItem rna_enum_keyblock_type_items[] = {
 
 #ifdef RNA_RUNTIME
 
+#  include <algorithm>
 #  include <stddef.h>
 
 #  include "DNA_object_types.h"
@@ -491,11 +492,11 @@ static void rna_ShapeKey_NurbInfo_step(NurbInfo *r_info,
   rna_ShapeKey_NurbInfo_init(r_info, nu);
 
   if (input_elem) {
-    r_info->nurb_index = MIN2(r_info->nurb_size, *p_raw_index / r_info->nurb_elem_step);
+    r_info->nurb_index = std::min(r_info->nurb_size, *p_raw_index / r_info->nurb_elem_step);
     *p_raw_index -= r_info->nurb_size * r_info->nurb_elem_step;
   }
   else {
-    r_info->nurb_index = MIN2(r_info->nurb_size, *p_raw_index);
+    r_info->nurb_index = std::min(r_info->nurb_size, *p_raw_index);
     *p_raw_index -= r_info->nurb_size;
   }
 
@@ -667,6 +668,62 @@ int rna_ShapeKey_data_lookup_int(PointerRNA *ptr, int index, PointerRNA *r_ptr)
   return false;
 }
 
+static void rna_ShapeKey_points_begin(CollectionPropertyIterator *iter, PointerRNA *ptr)
+{
+  Key *key = rna_ShapeKey_find_key(ptr->owner_id);
+  KeyBlock *kb = (KeyBlock *)ptr->data;
+  int tot = kb->totelem;
+
+  if (GS(key->from->name) == ID_CU_LEGACY) {
+    /* Legacy curves have only curve points and bezier points. */
+    tot = 0;
+  }
+  rna_iterator_array_begin(iter, (void *)kb->data, key->elemsize, tot, 0, nullptr);
+}
+
+static int rna_ShapeKey_points_length(PointerRNA *ptr)
+{
+  Key *key = rna_ShapeKey_find_key(ptr->owner_id);
+  KeyBlock *kb = (KeyBlock *)ptr->data;
+  int tot = kb->totelem;
+
+  if (GS(key->from->name) == ID_CU_LEGACY) {
+    /* Legacy curves have only curve points and bezier points. */
+    tot = 0;
+  }
+
+  return tot;
+}
+
+int rna_ShapeKey_points_lookup_int(PointerRNA *ptr, int index, PointerRNA *r_ptr)
+{
+  Key *key = rna_ShapeKey_find_key(ptr->owner_id);
+  KeyBlock *kb = (KeyBlock *)ptr->data;
+  int elemsize = key->elemsize;
+  char *databuf = static_cast<char *>(kb->data);
+
+  memset(r_ptr, 0, sizeof(*r_ptr));
+
+  if (index < 0) {
+    return false;
+  }
+
+  if (GS(key->from->name) == ID_CU_LEGACY) {
+    /* Legacy curves have only curve points and bezier points. */
+    return false;
+  }
+  else {
+    if (index < kb->totelem) {
+      r_ptr->owner_id = ptr->owner_id;
+      r_ptr->type = &RNA_ShapeKeyPoint;
+      r_ptr->data = databuf + elemsize * index;
+      return true;
+    }
+  }
+
+  return false;
+}
+
 static char *rna_ShapeKey_path(const PointerRNA *ptr)
 {
   const KeyBlock *kb = (KeyBlock *)ptr->data;
@@ -807,13 +864,13 @@ static void rna_def_keydata(BlenderRNA *brna)
   PropertyRNA *prop;
 
   srna = RNA_def_struct(brna, "ShapeKeyPoint", nullptr);
+  RNA_def_struct_sdna(srna, "vec3f");
   RNA_def_struct_ui_text(srna, "Shape Key Point", "Point in a shape key");
   RNA_def_struct_path_func(srna, "rna_ShapeKeyPoint_path");
 
   prop = RNA_def_property(srna, "co", PROP_FLOAT, PROP_TRANSLATION);
+  RNA_def_property_float_sdna(prop, nullptr, "x");
   RNA_def_property_array(prop, 3);
-  RNA_def_property_float_funcs(
-      prop, "rna_ShapeKeyPoint_co_get", "rna_ShapeKeyPoint_co_set", nullptr);
   RNA_def_property_ui_text(prop, "Location", "");
   RNA_def_property_update(prop, 0, "rna_Key_update_data");
 
@@ -953,6 +1010,13 @@ static void rna_def_keyblock(BlenderRNA *brna)
   RNA_def_property_ui_icon(prop, ICON_CHECKBOX_HLT, -1);
   RNA_def_property_update(prop, 0, "rna_Key_update_data");
 
+  prop = RNA_def_property(srna, "lock_shape", PROP_BOOLEAN, PROP_NONE);
+  RNA_def_property_boolean_sdna(prop, nullptr, "flag", KEYBLOCK_LOCKED_SHAPE);
+  RNA_def_property_ui_text(
+      prop, "Lock Shape", "Protect the shape key from accidental sculpting and editing");
+  RNA_def_property_ui_icon(prop, ICON_UNLOCKED, 1);
+  RNA_def_property_update(prop, 0, "rna_Key_update_data");
+
   prop = RNA_def_property(srna, "slider_min", PROP_FLOAT, PROP_NONE);
   RNA_def_property_float_sdna(prop, nullptr, "slidermin");
   RNA_def_property_range(prop, -10.0f, 10.0f);
@@ -982,6 +1046,25 @@ static void rna_def_keyblock(BlenderRNA *brna)
                                     "rna_ShapeKey_data_get",
                                     "rna_ShapeKey_data_length",
                                     "rna_ShapeKey_data_lookup_int",
+                                    nullptr,
+                                    nullptr);
+
+  prop = RNA_def_property(srna, "points", PROP_COLLECTION, PROP_NONE);
+  RNA_def_property_collection_sdna(prop, nullptr, "data", nullptr);
+  RNA_def_property_struct_type(prop, "ShapeKeyPoint");
+  RNA_def_property_override_flag(prop, PROPOVERRIDE_IGNORE);
+  RNA_def_property_ui_text(prop,
+                           "Points",
+                           "Optimized access to shape keys point data, when using "
+                           "foreach_get/foreach_set accessors. "
+                           "(Warning: Does not support legacy Curve shape keys)");
+  RNA_def_property_collection_funcs(prop,
+                                    "rna_ShapeKey_points_begin",
+                                    "rna_iterator_array_next",
+                                    "rna_iterator_array_end",
+                                    "rna_iterator_array_get",
+                                    "rna_ShapeKey_points_length",
+                                    "rna_ShapeKey_points_lookup_int",
                                     nullptr,
                                     nullptr);
 

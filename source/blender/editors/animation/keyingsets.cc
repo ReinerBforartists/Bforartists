@@ -105,7 +105,7 @@ static int add_default_keyingset_exec(bContext *C, wmOperator * /*op*/)
    */
   const eKS_Settings flag = KEYINGSET_ABSOLUTE;
 
-  const eInsertKeyFlags keyingflag = ANIM_get_keyframing_flags(scene, false);
+  const eInsertKeyFlags keyingflag = ANIM_get_keyframing_flags(scene);
 
   /* Call the API func, and set the active keyingset index. */
   BKE_keyingset_add(&scene->keyingsets, nullptr, nullptr, flag, keyingflag);
@@ -289,7 +289,7 @@ static int add_keyingset_button_exec(bContext *C, wmOperator *op)
      */
     const eKS_Settings flag = KEYINGSET_ABSOLUTE;
 
-    const eInsertKeyFlags keyingflag = ANIM_get_keyframing_flags(scene, false);
+    const eInsertKeyFlags keyingflag = ANIM_get_keyframing_flags(scene);
 
     /* Call the API func, and set the active keyingset index. */
     keyingset = BKE_keyingset_add(
@@ -781,13 +781,13 @@ KeyingSet *ANIM_get_keyingset_for_autokeying(const Scene *scene, const char *tra
    * - use the active KeyingSet if defined (and user wants to use it for all autokeying),
    *   or otherwise key transforms only
    */
-  if (blender::animrig::is_autokey_flag(scene, AUTOKEY_FLAG_ONLYKEYINGSET) &&
+  if (blender::animrig::is_keying_flag(scene, AUTOKEY_FLAG_ONLYKEYINGSET) &&
       (scene->active_keyingset))
   {
     return ANIM_scene_get_active_keyingset(scene);
   }
 
-  if (blender::animrig::is_autokey_flag(scene, AUTOKEY_FLAG_INSERTAVAILABLE)) {
+  if (blender::animrig::is_keying_flag(scene, AUTOKEY_FLAG_INSERTAVAILABLE)) {
     return ANIM_builtin_keyingset_get_named(ANIM_KS_AVAILABLE_ID);
   }
 
@@ -881,6 +881,7 @@ const EnumPropertyItem *ANIM_keying_sets_enum_itemf(bContext *C,
     item_tmp.identifier = "__ACTIVE__";
     item_tmp.name = "Active Keying Set";
     item_tmp.value = 0;
+    item_tmp.icon = ICON_CLEAR; /*BFA - added icon*/
     RNA_enum_item_add(&item, &totitem, &item_tmp);
 
     RNA_enum_item_add_separator(&item, &totitem);
@@ -1179,7 +1180,7 @@ int ANIM_apply_keyingset(bContext *C,
   }
 
   Scene *scene = CTX_data_scene(C);
-  const eInsertKeyFlags base_kflags = ANIM_get_keyframing_flags(scene, true);
+  const eInsertKeyFlags base_kflags = ANIM_get_keyframing_flags(scene);
   eInsertKeyFlags kflag = INSERTKEY_NOFLAGS;
   if (mode == MODIFYKEY_MODE_INSERT) {
     /* use context settings as base */

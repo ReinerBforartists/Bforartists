@@ -931,18 +931,15 @@ enum wmConfirmPosition {
 };
 
 struct wmConfirmDetails {
-  char title[1024];
-  char message[1024];
-  char message2[1024];
-  char confirm_button[256];
-  char cancel_button[256];
+  std::string title;
+  std::string message;
+  std::string message2;
+  std::string confirm_text;
   int icon;
   wmConfirmSize size;
   wmConfirmPosition position;
-  bool confirm_default;
   bool cancel_default;
   bool mouse_move_quit;
-  bool red_alert;
 };
 
 /**
@@ -1227,10 +1224,10 @@ struct wmDragGreasePencilLayer {
   GreasePencilLayer *layer;
 };
 
-using WMDropboxTooltipFunc = char *(*)(bContext *C,
-                                       wmDrag *drag,
-                                       const int xy[2],
-                                       wmDropBox *drop);
+using WMDropboxTooltipFunc = std::string (*)(bContext *C,
+                                             wmDrag *drag,
+                                             const int xy[2],
+                                             wmDropBox *drop);
 
 struct wmDragActiveDropState {
   wmDragActiveDropState();
