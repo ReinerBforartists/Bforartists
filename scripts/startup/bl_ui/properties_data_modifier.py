@@ -73,7 +73,6 @@ class OBJECT_MT_modifier_add(ModifierAddMenu, Menu):
         menu_idname = menu.__name__
 
         col = layout.column()
-        
         if layout.operator_context != 'INVOKE_REGION_WIN':
             col.label(text=header, icon=icon)
             col.separator()
@@ -170,6 +169,7 @@ class OBJECT_MT_modifier_add_generate(ModifierAddMenu, Menu):
         if ob_type == 'MESH':
             self.operator_modifier_add(layout, 'WIREFRAME')
         if ob_type == 'GREASEPENCIL':
+            self.operator_modifier_add(layout, 'GREASE_PENCIL_MIRROR')
             self.operator_modifier_add(layout, 'GREASE_PENCIL_SUBDIV')
 
 
@@ -207,8 +207,10 @@ class OBJECT_MT_modifier_add_deform(ModifierAddMenu, Menu):
         if ob_type == 'VOLUME':
             self.operator_modifier_add(layout, 'VOLUME_DISPLACE')
         if ob_type == 'GREASEPENCIL':
+            self.operator_modifier_add(layout, 'GREASE_PENCIL_NOISE')
             self.operator_modifier_add(layout, 'GREASE_PENCIL_OFFSET')
             self.operator_modifier_add(layout, 'GREASE_PENCIL_SMOOTH')
+            self.operator_modifier_add(layout, 'GREASE_PENCIL_THICKNESS')
 
 
 class OBJECT_MT_modifier_add_physics(ModifierAddMenu, Menu):
@@ -282,7 +284,6 @@ class OBJECT_MT_modifier_add_assets(ModifierAddMenu, Menu):
             layout.menu("OBJECT_MT_modifier_add_color_assets")
 
         layout.separator()
-        
         if geometry_nodes_supported:
             layout.menu_contents("OBJECT_MT_modifier_add_root_catalogs")
 
@@ -311,7 +312,6 @@ class OBJECT_OT_add_asset_modifier_menu(InvokeMenuOperator, Operator):
     bl_idname = "object.add_asset_modifier_menu"
     bl_label = "Add Asset Modifier"
     bl_description = "Add a modifier nodegroup to the active object"
-    
     menu_id = "OBJECT_MT_modifier_add_assets"
     space_type = 'PROPERTIES'
     space_context = 'MODIFIER'
@@ -337,7 +337,6 @@ class OBJECT_MT_gpencil_modifier_add(GenericColumnMenu, Menu):
     op_id = "object.gpencil_modifier_add"
     OPERATOR_DATA, TRANSLATION_CONTEXT = fetch_op_data(class_name="GpencilModifier")
     search_header = "Grease Pencil Modifier"
-    
     @classmethod
     def poll(cls, context):
         ob = context.object
@@ -352,7 +351,7 @@ class OBJECT_MT_gpencil_modifier_add(GenericColumnMenu, Menu):
             types=('GP_ARRAY', 'GP_BUILD', 'GP_DASH', 'GP_ENVELOPE', 'GP_LENGTH', 'GP_LINEART', 'GP_MIRROR', 'GP_MULTIPLY', 'GP_OUTLINE', 'GP_SIMPLIFY', 'GP_SUBDIV'))
         self.draw_operator_column(layout, header="Deform",
             types=('GP_ARMATURE', 'GP_HOOK', 'GP_LATTICE', 'GP_NOISE', 'GP_OFFSET', 'SHRINKWRAP', 'GP_SMOOTH', 'GP_THICK'))
-        self.draw_operator_column(layout, header="Color", 
+        self.draw_operator_column(layout, header="Color",
             types=('GP_COLOR', 'GP_OPACITY', 'GP_TINT'))
 
 
