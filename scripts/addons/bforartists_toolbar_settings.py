@@ -31,34 +31,17 @@ bl_info = {
 
 import bpy
 
+
 from bpy.types import Operator, Scene, AddonPreferences
 from bpy.props import BoolProperty, EnumProperty, IntProperty
 import bpy.utils.previews
 
-addon_keymaps = {}
-_icons = None
 
-
-def find_user_keyconfig(key):
-    km, kmi = addon_keymaps[key]
-    for item in bpy.context.window_manager.keyconfigs.user.keymaps[km.name].keymap_items:
-        found_item = False
-        if kmi.idname == item.idname:
-            found_item = True
-            for name in dir(kmi.properties):
-                if not name in ["bl_rna", "rna_type"] and not name[0] == "_":
-                    if not kmi.properties[name] == item.properties[name]:
-                        found_item = False
-        if found_item:
-            return item
-    #print(f"Couldn't find keymap item for {key}, using addon keymap instead. This won't be saved across sessions!")
-    return kmi
-
-
-class BFA_OT_toolbar_settings_prefs(AddonPreferences):
+class TOPBAR_OT_toolbar_settings_prefs(AddonPreferences):
     # this must match the addon name, use '__package__'
     # when defining this in a submodule of a python package.
     bl_idname = __name__
+
 
     # Enums Tabs
     bfa_pref_tab_types: EnumProperty(name='Preference Tabs Types', description='', items=[
@@ -69,9 +52,8 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
         ('NLA', 'NLA', 'NLA Options', 0, 4),
         ('Outliner', 'Outliner', 'Outliner Options', 0, 5),
         ('Other', 'Other', 'Other Options', 0, 6),
-        ('Keymap', 'Keymap', 'Keymap Options', 0, 7),
-
     ])
+
 
     bfa_topbar_types: EnumProperty(name='Topbar Types', description='', items=[
         ('Files', 'Files', 'Files Options', 0, 0),
@@ -84,12 +66,8 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
         ('Misc', 'Misc', '', 0, 7)
     ])
 
-    #bfa_options: EnumProperty(name='Adv Options', description='', items=[
-    #    ('Reset', 'Reset', 'Reset Options', 0, 0),
-    #    ('Other', 'Other', 'Other Options', 0, 1),])
 
     # File Topbar
-    topbar_file_cbox: BoolProperty(name="Files", default=True, description = "Display the Files Topbar Operators\nAll Modes",)
     topbar_file_load_save : BoolProperty(name="Load / Save", default=True, description = "Display the Load Save Topbar\nAll Modes", )
     topbar_file_recover : BoolProperty(name="Recover", default=False, description = "Display the Recover Topbar\nAll Modes", )
     topbar_file_link_append : BoolProperty(name="Link / Append", default=False, description = "Display the Link Append Topbar\nAll Modes", )
@@ -107,7 +85,6 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
 
 
     # Meshedit Topbar
-    topbar_mesh_cbox: BoolProperty(name='Meshedit', default=True, description = "Display the Topbar Meshedit Operators\nAll Modes",)
     topbar_mesh_vertices_splitconnect : BoolProperty(name="Vertices Split Connect", default=True, description = "Display the the Mesh Edit Vertices Split / Connect\nMesh Object, Edit Mode", )
     topbar_mesh_vertices_misc : BoolProperty(name="Vertices Misc", default=False, description = "Display the the Mesh Edit Vertices Misc Topbar with misc tools\nMesh Object, Edit Mode", )
     topbar_mesh_edges_subdiv : BoolProperty(name="Edges Subdiv", default=False, description = "Display the the Mesh Edit Edges Subdiv Topbar\nMesh Object, Edit Mode", )
@@ -123,7 +100,6 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
 
 
     # Primitives Topbar
-    topbar_primitives_cbox: BoolProperty(name='Primitives', default=True, description = "Display the Topbar Primitives Operators\nAll Modes",)
     topbar_primitives_mesh : BoolProperty(name="Mesh", default=True, description = "Display the Mesh primitive Topbarr\nDisplay is mode dependant", )
     topbar_primitives_curve : BoolProperty(name="Curve", default=False, description = "Display the Curve primitive Topbar\nDisplay is mode dependant", )
     topbar_primitives_surface : BoolProperty(name="Surface", default=False, description = "Display the Surface primitive Topbar\nDisplay is mode dependant", )
@@ -142,7 +118,6 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
 
 
     # Image Topbar
-    topbar_image_cbox: BoolProperty(name='Image', default=True, description = "Display the Topbar Image Operators\nAll Modes",)
     topbar_image_uv_mirror : BoolProperty(name="UV Mirror", default=True, description = "Display the UV Mirror Topbar\nAll Modes", )
     topbar_image_uv_rotate : BoolProperty(name="UV Rotate", default=True, description = "Display the UV Rotate Topbar\nAll Modes", )
     topbar_image_uv_align : BoolProperty(name="UV Align", default=True, description = "Display the UV Align Topbar\nAll Modes", )
@@ -151,7 +126,6 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
 
 
     # Tools Topbar
-    topbar_tools_cbox: BoolProperty(name='Tools', default=True, description = "Display the Topbar Tools Operators\nAll Modes",)
     topbar_tools_parent : BoolProperty(name="Parent", default=False, description = "Display the Parent Topbar\nDisplay is mode and content dependant", )
     topbar_tools_objectdata : BoolProperty(name="Object Data", default=False, description = "Display the Object Data Topbar\nDisplay is mode and content dependant", )
     topbar_tools_link_to_scn : BoolProperty(name="Link to SCN", default=False, description = "Display the Link to SCN dropdown box\nDisplay is mode and content dependant", )
@@ -164,7 +138,6 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
 
 
     # Animation Topbar
-    topbar_animation_cbox: BoolProperty(name='Animation', default=True, description = "Display the Topbar Animation Operators\nAll Modes",)
     topbar_animation_keyframes : BoolProperty(name="Keyframes", default=True, description = "Display the keyframes Topbar\nDisplay is mode and content dependant", )
     topbar_animation_range : BoolProperty(name="Range", default=False, description = "Display the Range Topbar\nAll Modes", )
     topbar_animation_play : BoolProperty(name="Play", default=False, description = "Display the Play Topbar\nAll Modes", )
@@ -173,7 +146,6 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
     topbar_animation_keyingset : BoolProperty(name="Keyingset", default=True, description = "Display the Keyingset Topbar\nAll Modes", )
 
     # Edit Topbar
-    topbar_edit_cbox: BoolProperty(name='Edit', default=True, description = "Display the Topbar Edit Operators\nAll Modes",)
     topbar_edit_edit : BoolProperty(name="Edit", default=False, description = "Display the Edit Topbar\nDisplay is mode and content dependant", )
     topbar_edit_weightinedit : BoolProperty(name="Weight in Edit", default=False, description = "Display the Weight in Edit Topbar\nDisplay is mode and content dependant", )
     topbar_edit_objectapply : BoolProperty(name="Object Apply", default=True, description = "Display the Object Apply Topbar\nDisplay is mode and content dependant", )
@@ -182,7 +154,6 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
     topbar_edit_objectclear : BoolProperty(name="Object Clear", default=False, description = "Display the Object Clear Topbar\nDisplay is mode and content dependant", )
 
     # Misc Topbar
-    topbar_misc_cbox: BoolProperty(name='Misc', default=True, description = "Display the Topbar Misc Operators\nAll Modes",)
     topbar_misc_viewport : BoolProperty(name="Viewport", default=False, description = "Display the Viewport Topbar\nAll Modes", )
     topbar_misc_undoredo : BoolProperty(name="Undo / Redo", default=True, description = "Display the Undo Redo Topbar\nAll Modes", )
     topbar_misc_undohistory : BoolProperty(name="Undo History", default=True, description = "Display the Undo History Topbar\nAll Modes", )
@@ -305,6 +276,7 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
     bfa_button_style: BoolProperty(name='Checkerbox/Button Toggle', description='Switch between Checkerbox or Button Type', default=False)
 
     # Toolbar Options
+    topbar_show_quicktoggle : BoolProperty(name="Show Quick Toggle (Topbar)", default = False, description = "Show the quick toggle buttons in the topbar toolbar editor")
     toolbar_show_quicktoggle : BoolProperty(name="Show Quick Toggle", default = False, description = "Show the quick toggle buttons in the toolbar editor")
 
     # NLA Editor, switch tweak methods
@@ -671,17 +643,17 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
             row.alignment = 'Center'.upper()
             row.label(text="Topbar Defaults Option")
 
-            box.operator("bfa.reset_topbar")
+            box.operator("topbar.reset_topbar")
             grid = box.grid_flow(row_major=False, columns=0, even_columns=True, even_rows=False, align=True)
 
-            grid.operator("bfa.reset_files",)
-            grid.operator("bfa.reset_meshedit",)
-            grid.operator("bfa.reset_primitives",)
-            grid.operator("bfa.reset_image",)
-            grid.operator("bfa.reset_tools",)
-            grid.operator("bfa.reset_animation",)
-            grid.operator("bfa.reset_edit",)
-            grid.operator("bfa.reset_misc",)
+            grid.operator("topbar.reset_files",)
+            grid.operator("topbar.reset_meshedit",)
+            grid.operator("topbar.reset_primitives",)
+            grid.operator("topbar.reset_image",)
+            grid.operator("topbar.reset_tools",)
+            grid.operator("topbar.reset_animation",)
+            grid.operator("topbar.reset_edit",)
+            grid.operator("topbar.reset_misc",)
 
 
         # NLA Options
@@ -710,25 +682,13 @@ class BFA_OT_toolbar_settings_prefs(AddonPreferences):
             grid.prop(self, "uv_show_toolshelf_tabs", toggle=addon_prefs.bfa_button_style)
             grid.prop(self, "vse_show_toolshelf_tabs", toggle=addon_prefs.bfa_button_style)
 
-        # Keymap Tab
-        if (addon_prefs.bfa_pref_tab_types == 'Keymap'):
-
-            box = layout.box()
-            row = box.row()
-            row.alignment = 'Center'.upper()
-            row.label(text="Topbar Popup Panel Keymap")
-
-            grid = box.grid_flow(row_major=False, columns=0, even_columns=True, even_rows=False, align=True)
-
-            grid.prop(find_user_keyconfig('BFAPU'), 'type', text='', full_event=True)
 
 ##### Reset Functions ####
-def bfa_reset_files(layout_function,):
+def topbar_reset_files(layout_function,):
         prefs = bpy.context.preferences.addons[__name__].preferences
         reset = prefs.property_unset
 
         # Topbar Files Defaults #
-        reset("topbar_file_cbox")
         reset("topbar_file_load_save")
         reset("topbar_file_recover")
         reset("topbar_file_link_append")
@@ -745,12 +705,11 @@ def bfa_reset_files(layout_function,):
         reset("topbar_file_render_misc")
 
 
-def bfa_reset_meshedit(layout_function,):
+def topbar_reset_meshedit(layout_function,):
         prefs = bpy.context.preferences.addons[__name__].preferences
         reset = prefs.property_unset
 
         # Topbar Meshedit Defaults #
-        reset("topbar_mesh_cbox")
         reset("topbar_mesh_vertices_splitconnect")
         reset("topbar_mesh_vertices_misc")
         reset("topbar_mesh_edges_subdiv")
@@ -765,12 +724,11 @@ def bfa_reset_meshedit(layout_function,):
         reset("topbar_mesh_cleanup")
 
 
-def bfa_reset_primitives(layout_function,):
+def topbar_reset_primitives(layout_function,):
         prefs = bpy.context.preferences.addons[__name__].preferences
         reset = prefs.property_unset
 
         # Topbar Primitives Defaults #
-        reset("topbar_primitives_cbox")
         reset("topbar_primitives_mesh")
         reset("topbar_primitives_curve")
         reset("topbar_primitives_surface")
@@ -788,12 +746,11 @@ def bfa_reset_primitives(layout_function,):
         reset("topbar_primitives_collection")
 
 
-def bfa_reset_image(layout_function,):
+def topbar_reset_image(layout_function,):
         prefs = bpy.context.preferences.addons[__name__].preferences
         reset = prefs.property_unset
 
         # Topbar Images Defaults #
-        reset("topbar_image_cbox")
         reset("topbar_image_uv_mirror")
         reset("topbar_image_uv_rotate")
         reset("topbar_image_uv_align",)
@@ -801,12 +758,11 @@ def bfa_reset_image(layout_function,):
         reset("topbar_image_uv_modify")
 
 
-def bfa_reset_tools(layout_function,):
+def topbar_reset_tools(layout_function,):
         prefs = bpy.context.preferences.addons[__name__].preferences
         reset = prefs.property_unset
 
         # Topbar Tools Defaults #
-        reset("topbar_tools_cbox")
         reset("topbar_tools_parent")
         reset("topbar_tools_objectdata")
         reset("topbar_tools_link_to_scn")
@@ -818,12 +774,11 @@ def bfa_reset_tools(layout_function,):
         reset("topbar_tools_relations")
 
 
-def bfa_reset_animation(layout_function,):
+def topbar_reset_animation(layout_function,):
         prefs = bpy.context.preferences.addons[__name__].preferences
         reset = prefs.property_unset
 
         # Topbar Animation Defaults #
-        reset("topbar_animation_cbox")
         reset("topbar_animation_keyframes")
         reset("topbar_animation_range")
         reset("topbar_animation_play")
@@ -832,12 +787,11 @@ def bfa_reset_animation(layout_function,):
         reset("topbar_animation_keyingset")
 
 
-def bfa_reset_edit(layout_function,):
+def topbar_reset_edit(layout_function,):
         prefs = bpy.context.preferences.addons[__name__].preferences
         reset = prefs.property_unset
 
         # Topbar Edit Defaults #
-        reset("topbar_edit_cbox")
         reset("topbar_edit_edit")
         reset("topbar_edit_weightinedit")
         reset("topbar_edit_objectapply")
@@ -845,12 +799,11 @@ def bfa_reset_edit(layout_function,):
         reset("topbar_edit_objectapplydeltas")
 
 
-def bfa_reset_misc(layout_function,):
+def topbar_reset_misc(layout_function,):
         prefs = bpy.context.preferences.addons[__name__].preferences
         reset = prefs.property_unset
 
         # Topbar Misc Defaults #
-        reset("topbar_misc_cbox")
         reset("topbar_misc_viewport")
         reset("topbar_misc_undoredo")
         reset("topbar_misc_undohistory")
@@ -862,23 +815,23 @@ def bfa_reset_misc(layout_function,):
         reset("topbar_misc_operatorsearch")
 
 ##### Reset Operators ####
-class BFA_OT_reset_topbar(Operator):
+class TOPBAR_OT_reset_all(Operator):
     """ Reset Topbar To Defaults """
-    bl_idname = "bfa.reset_topbar"
+    bl_idname = "topbar.reset_topbar"
     bl_label = "Reset All"
     bl_options = {"REGISTER"}
 
     def execute(self, context):
         layout = self.layout
         layout_function = layout
-        bfa_reset_files(layout_function,)
-        bfa_reset_meshedit(layout_function,)
-        bfa_reset_primitives(layout_function,)
-        bfa_reset_image(layout_function,)
-        bfa_reset_tools(layout_function,)
-        bfa_reset_edit(layout_function,)
-        bfa_reset_animation(layout_function,)
-        bfa_reset_misc(layout_function,)
+        topbar_reset_files(layout_function,)
+        topbar_reset_meshedit(layout_function,)
+        topbar_reset_primitives(layout_function,)
+        topbar_reset_image(layout_function,)
+        topbar_reset_tools(layout_function,)
+        topbar_reset_edit(layout_function,)
+        topbar_reset_animation(layout_function,)
+        topbar_reset_misc(layout_function,)
 
         prefs = bpy.context.preferences.addons[__name__].preferences
         reset = prefs.property_unset
@@ -886,137 +839,137 @@ class BFA_OT_reset_topbar(Operator):
 
         prefs = bpy.context.scene
         reset = prefs.property_unset
-        reset("bfa_defaults")
+        reset("topbar_defaults")
 
         self.report({'INFO'}, message='Topbar Set to Defaults')
 
         return {'FINISHED'}
 
 
-class BFA_OT_reset_files(Operator):
+class TOPBAR_OT_reset_files(Operator):
     """ Reset Topbar Files To Defaults """
-    bl_idname = "bfa.reset_files"
+    bl_idname = "topbar.reset_files"
     bl_label = "Files"
     bl_options = {"REGISTER"}
 
     def execute(self, context):
         layout = self.layout
         layout_function = layout
-        bfa_reset_files(layout_function,)
+        topbar_reset_files(layout_function,)
 
         self.report({'INFO'}, message='Topbar Files Set to Defaults')
         return {'FINISHED'}
 
 
-class BFA_OT_reset_meshedit(Operator):
+class TOPBAR_OT_reset_meshedit(Operator):
     """ Reset Topbar Meshedit To Defaults """
-    bl_idname = "bfa.reset_meshedit"
+    bl_idname = "topbar.reset_meshedit"
     bl_label = "Meshedit"
     bl_options = {"REGISTER"}
 
     def execute(self, context):
         layout = self.layout
         layout_function = layout
-        bfa_reset_meshedit(layout_function,)
+        topbar_reset_meshedit(layout_function,)
         self.report({'INFO'}, message='Topbar Meshedit Set to Defaults')
         return {'FINISHED'}
 
 
-class BFA_OT_reset_primitives(Operator):
+class TOPBAR_OT_reset_primitives(Operator):
     """ Reset Topbar Primitives To Defaults """
-    bl_idname = "bfa.reset_primitives"
+    bl_idname = "topbar.reset_primitives"
     bl_label = "Primitives"
     bl_options = {"REGISTER"}
 
     def execute(self, context):
         layout = self.layout
         layout_function = layout
-        bfa_reset_primitives(layout_function,)
+        topbar_reset_primitives(layout_function,)
         self.report({'INFO'}, message='Topbar Primitives Set to Defaults')
         return {'FINISHED'}
 
 
-class BFA_OT_reset_image(Operator):
+class TOPBAR_OT_reset_image(Operator):
     """ Reset Topbar Image To Defaults """
-    bl_idname = "bfa.reset_image"
+    bl_idname = "topbar.reset_image"
     bl_label = "Images"
     bl_options = {"REGISTER"}
 
     def execute(self, context):
         layout = self.layout
         layout_function = layout
-        bfa_reset_image(layout_function,)
+        topbar_reset_image(layout_function,)
         self.report({'INFO'}, message='Topbar Image to Defaults')
         return {'FINISHED'}
 
 
-class BFA_OT_reset_tools(Operator):
+class TOPBAR_OT_reset_tools(Operator):
     """ Reset Topbar Tools To Defaults """
-    bl_idname = "bfa.reset_tools"
+    bl_idname = "topbar.reset_tools"
     bl_label = "Tools"
     bl_options = {"REGISTER"}
 
     def execute(self, context):
         layout = self.layout
         layout_function = layout
-        bfa_reset_tools(layout_function,)
+        topbar_reset_tools(layout_function,)
         self.report({'INFO'}, message='Topbar Tools Set to Defaults')
         return {'FINISHED'}
 
 
-class BFA_OT_reset_animation(Operator):
+class TOPBAR_OT_reset_animation(Operator):
     """ Reset Topbar Animation To Defaults """
-    bl_idname = "bfa.reset_animation"
+    bl_idname = "topbar.reset_animation"
     bl_label = "Animation"
     bl_options = {"REGISTER"}
 
     def execute(self, context):
         layout = self.layout
         layout_function = layout
-        bfa_reset_animation(layout_function,)
+        topbar_reset_animation(layout_function,)
         self.report({'INFO'}, message='Topbar Animation Set to Defaults')
         return {'FINISHED'}
 
 
-class BFA_OT_reset_edit(Operator):
+class TOPBAR_OT_reset_edit(Operator):
     """ Reset Topbar Edit To Defaults """
-    bl_idname = "bfa.reset_edit"
+    bl_idname = "topbar.reset_edit"
     bl_label = "Edit"
     bl_options = {"REGISTER"}
 
     def execute(self, context):
         layout = self.layout
         layout_function = layout
-        bfa_reset_edit(layout_function,)
+        topbar_reset_edit(layout_function,)
         self.report({'INFO'}, message='Topbar Edit Set to Defaults')
         return {'FINISHED'}
 
 
-class BFA_OT_reset_misc(Operator):
+class TOPBAR_OT_reset_misc(Operator):
     """ Reset Topbar Misc To Defaults """
-    bl_idname = "bfa.reset_misc"
+    bl_idname = "topbar.reset_misc"
     bl_label = "Misc"
     bl_options = {"REGISTER"}
 
     def execute(self, context):
         layout = self.layout
         layout_function = layout
-        bfa_reset_misc(layout_function,)
+        topbar_reset_misc(layout_function,)
         self.report({'INFO'}, message='Topbar Misc Set to Defaults')
         return {'FINISHED'}
 
 
 classes = (
-    BFA_OT_toolbar_settings_prefs,
-    BFA_OT_reset_topbar,
-    BFA_OT_reset_files,
-    BFA_OT_reset_meshedit,
-    BFA_OT_reset_primitives,
-    BFA_OT_reset_image,
-    BFA_OT_reset_tools,
-    BFA_OT_reset_animation,
-    BFA_OT_reset_edit,
-    BFA_OT_reset_misc,
+    TOPBAR_OT_toolbar_settings_prefs,
+    TOPBAR_OT_reset_all,
+    TOPBAR_OT_reset_files,
+    TOPBAR_OT_reset_meshedit,
+    TOPBAR_OT_reset_primitives,
+    TOPBAR_OT_reset_image,
+    TOPBAR_OT_reset_tools,
+    TOPBAR_OT_reset_animation,
+    TOPBAR_OT_reset_edit,
+    TOPBAR_OT_reset_misc,
 )
 
 
@@ -1026,19 +979,7 @@ def register():
     for cls in classes:
        register_class(cls)
 
-    Scene.bfa_defaults = BoolProperty(name='BFA Defaults', description='Resets Topbar to Default State', default=False)
-
-
-# Keymap Register
-    global _icons
-    _icons = bpy.utils.previews.new()
-    kc = bpy.context.window_manager.keyconfigs.addon
-    km = kc.keymaps.new(name='Window', space_type='EMPTY')
-    kmi = km.keymap_items.new('wm.call_panel', 'Q', 'PRESS',
-        ctrl=False, alt=True, shift=False, repeat=True)
-    kmi.properties.name = 'TOPBAR_PT_main'
-    kmi.properties.keep_open = True
-    addon_keymaps['BFAPU'] = (km, kmi)
+    Scene.topbar_defaults = BoolProperty(name='BFA Defaults', description='Resets Topbar to Default State', default=False)
 
 
 def unregister():
@@ -1046,17 +987,7 @@ def unregister():
     for cls in classes:
        unregister_class(cls)
 
-    del Scene.bfa_defaults
-
-
-# Keymap Unregister
-    global _icons
-    bpy.utils.previews.remove(_icons)
-    wm = bpy.context.window_manager
-    kc = wm.keyconfigs.addon
-    for km, kmi in addon_keymaps.values():
-        km.keymap_items.remove(kmi)
-    addon_keymaps.clear()
+    del Scene.topbar_defaults
 
 
 if __name__ == "__main__":
