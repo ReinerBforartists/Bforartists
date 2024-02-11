@@ -508,6 +508,7 @@ static void build_keyingset_enum(bContext *C, EnumPropertyItem **item, int *toti
         item_tmp.name = keyingset->name;
         item_tmp.description = keyingset->description;
         item_tmp.value = enum_index;
+        item_tmp.icon = ICON_KEYINGSET;
         RNA_enum_item_add(item, totitem, &item_tmp);
       }
     }
@@ -562,6 +563,7 @@ static const EnumPropertyItem *keyingset_set_active_enum_itemf(bContext *C,
     item_tmp.identifier = "__ACTIVE__";
     item_tmp.name = "Clear Active Keying Set";
     item_tmp.value = 0;
+    item_tmp.icon = ICON_CLEAN_CHANNELS;
     RNA_enum_item_add(&item, &totitem, &item_tmp);
 
     RNA_enum_item_add_separator(&item, &totitem);
