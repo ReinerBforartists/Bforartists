@@ -1020,7 +1020,7 @@ const bTheme U_theme_default = {
     .metadatatext = RGBA(0xffffffff),
   },
   .space_topbar = {
-    .back = RGBA(0x4b4b4b00),
+    .back = RGBA(0x33333300),
     .title = RGBA(0xffffffff),
     .text = RGBA(0xffffffff),
     .text_hi = RGBA(0xffffffff),
