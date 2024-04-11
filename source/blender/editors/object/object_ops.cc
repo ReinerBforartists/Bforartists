@@ -127,6 +127,7 @@ void operatortypes_object()
   WM_operatortype_append(OBJECT_OT_modifier_convert);
   WM_operatortype_append(OBJECT_OT_modifier_copy);
   WM_operatortype_append(OBJECT_OT_modifier_copy_to_selected);
+  WM_operatortype_append(OBJECT_OT_modifier_remove_from_selected); // BFA - Custom Operator to Remove Modifiers on selected
   WM_operatortype_append(OBJECT_OT_modifier_set_active);
   WM_operatortype_append(OBJECT_OT_multires_subdivide);
   WM_operatortype_append(OBJECT_OT_multires_reshape);

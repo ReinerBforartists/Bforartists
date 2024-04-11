@@ -199,6 +199,7 @@ void OBJECT_OT_modifier_apply_as_shapekey(wmOperatorType *ot);
 void OBJECT_OT_modifier_convert(wmOperatorType *ot);
 void OBJECT_OT_modifier_copy(wmOperatorType *ot);
 void OBJECT_OT_modifier_copy_to_selected(wmOperatorType *ot);
+void OBJECT_OT_modifier_remove_from_selected(wmOperatorType *ot); // BFA - Custom Operator to Remove Modifiers on selected
 void OBJECT_OT_modifier_set_active(wmOperatorType *ot);
 void OBJECT_OT_multires_subdivide(wmOperatorType *ot);
 void OBJECT_OT_multires_reshape(wmOperatorType *ot);

@@ -2188,6 +2188,82 @@ void OBJECT_OT_modifier_copy_to_selected(wmOperatorType *ot)
 
 /** \} */
 
+
+// BFA - Custom Operator to Remove Modifiers on selected
+/* ------------------------------------------------------------------- */
+/** \name Remove Modifier From Selected Operator
+ * \{ */
+
+static int modifier_remove_from_selected_exec(bContext *C, wmOperator *op)
+{
+  Main *bmain = CTX_data_main(C);
+  // Scene *scene = CTX_data_scene(C); // TODO: Use this variable for upcoming features
+  Object *obact = context_active_object(C);
+  ModifierData *md = edit_modifier_property_get(op, obact, 0);
+
+  if (!md) {
+    return OPERATOR_CANCELLED;
+  }
+
+  int num_removed = 0;
+
+  CTX_DATA_BEGIN (C, Object *, ob, selected_objects) {
+    // Code to skip the active object has been removed so it runs also on active
+
+    ModifierData *mod = BKE_modifiers_findby_name(ob, md->name);
+    if (mod) {
+      BKE_modifier_remove_from_list(ob, mod);
+      num_removed++;
+      WM_event_add_notifier(C, NC_OBJECT | ND_MODIFIER, ob);
+      DEG_id_tag_update(&ob->id, ID_RECALC_GEOMETRY | ID_RECALC_ANIMATION);
+    }
+  }
+  CTX_DATA_END;
+
+  if (num_removed > 0) {
+    DEG_relations_tag_update(bmain);
+  }
+  else {
+    BKE_reportf(op->reports, RPT_ERROR, "Modifier '%s' was not removed from any objects", md->name);
+    return OPERATOR_CANCELLED;
+  }
+
+  return OPERATOR_FINISHED;
+}
+
+static int modifier_remove_from_selected_invoke(bContext *C, wmOperator *op, const wmEvent *event)
+{
+  int retval;
+  if (edit_modifier_invoke_properties_with_hover(C, op, event, &retval)) {
+    return modifier_remove_from_selected_exec(C, op);
+  }
+  return retval;
+}
+
+static bool modifier_remove_from_selected_poll(bContext *C)
+{
+  return modifier_copy_to_selected_poll(C); // Reuse the existing poll function
+}
+
+
+void OBJECT_OT_modifier_remove_from_selected(wmOperatorType *ot)
+{
+  ot->name = "Remove Modifier from Selected";
+  ot->description = "Remove the active modifier from all selected objects";
+  ot->idname = "OBJECT_OT_modifier_remove_from_selected";
+
+  ot->invoke = modifier_remove_from_selected_invoke;
+  ot->exec = modifier_remove_from_selected_exec;
+  ot->poll = modifier_remove_from_selected_poll;
+
+  /* flags */
+  ot->flag = OPTYPE_REGISTER | OPTYPE_UNDO | OPTYPE_INTERNAL;
+  edit_modifier_properties(ot);
+}
+
+
+/** \} */
+
 /* ------------------------------------------------------------------- */
 /** \name Multires Delete Higher Levels Operator
  * \{ */

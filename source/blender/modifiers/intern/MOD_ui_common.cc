@@ -263,6 +263,12 @@ static void modifier_ops_extra_draw(bContext *C, uiLayout *layout, void *md_v)
           ICON_COPYDOWN,
           "OBJECT_OT_modifier_copy_to_selected");
 
+  // BFA - Custom Operator to Remove Modifiers on selected
+  uiItemO(layout,
+        CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, "Remove from Selected"),
+        ICON_DELETE,
+        "OBJECT_OT_modifier_remove_from_selected");
+
   uiItemS(layout);
 
   /* Move to first. */
