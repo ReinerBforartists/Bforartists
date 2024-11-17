@@ -726,6 +726,12 @@ bool ui_popup_context_menu_for_button(bContext *C, uiBut *but, const wmEvent *ev
                         &op_ptr);
         RNA_boolean_set(&op_ptr, "all", false);
       }
+      /*bfa - goo engine - Show FCurve in editor operator patch*/
+      uiItemO(layout,
+              CTX_IFACE_(BLT_I18NCONTEXT_OPERATOR_DEFAULT, "Show FCurve in Editor"),
+              ICON_FCURVE,
+              "UI_OT_show_fcurve_in_editor");
+      /*end bfa*/
     }
 
     /* Drivers */
